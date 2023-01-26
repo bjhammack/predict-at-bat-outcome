@@ -35,7 +35,7 @@ class Data:
         elif source and not data:
             self.collect_data(source)
 
-    def collect_data(self, source: str):
+    def collect_data(self, source: str) -> pd.DataFrame:
         '''
         Returns collected data from given source directory and all sub-directories.
 
