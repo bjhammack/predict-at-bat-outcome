@@ -1,6 +1,8 @@
 from glob import glob
+from math import ceil
+import numpy as np
 import pandas as pd
-from typing import Optional
+from typing import List, Optional, Tuple
 
 
 class Data:
@@ -35,7 +37,7 @@ class Data:
             self.data = data
             self.source = 'Pre-collected'
         elif source and not data:
-            self.collect_data(source)
+            self.data = self.collect_data(source)
 
     def collect_data(self, source: str) -> pd.DataFrame:
         '''
@@ -75,3 +77,78 @@ class Data:
         data = pd.concat(dfs, ignore_index=True)
 
         return data
+
+    def split(self, split: Tuple[float, float, float]):
+        self.split = split
+        if len(split) != 3 or split[0]+split[1]+split[2] != 1:
+            raise ValueError(
+                'Split error. Given split needs to be len = 3 and add up to 1.'
+                )
+        
+        data_len = len(self.data)
+        self.data = self.data.reset_index(drop=True)
+        
+        train_len = ceil(split[0] * data_len)
+        dev_len = ceil(split[1] * data_len)
+        test_len = ceil(split[2] * data_len)
+
+        if (train_len + dev_len + test_len) != data_len:
+            train_len = (data_len - (dev_len + test_len))
+
+        self.train = self.data.iloc[:train_len]
+        self.dev = self.data.iloc[train_len:(train_len + dev_len)]
+        self.test = self.data.iloc[(train_len + dev_len):]        
+
+    def shuffle(self, seed: int = np.random.randint(1, 1e+6)):
+        '''
+        Sets self.data to a shuffled version of itself.
+
+        Args:
+        seed - int; seed to be used to creat perm
+        '''
+        data_len = len(self.data)
+        perm = np.random.RandomState(seed=seed).permutation(data_len)
+        self.data = self.data.iloc[perm].reset_index(drop=True)
+
+    def normalize(self):
+        return
+
+    def create_XY(
+            self,
+            x: str | List[str],
+            y: str | List[str],
+            data: pd.DataFrame | List[pd.DataFrame] = None,
+            ) -> Tuple[np.ndarray]:
+        '''
+        Returns the X and Y data for a given DataFrame. If list of DF given, 
+        first is train, second is dev, third is test, any others are ignored.
+
+        Args:
+        x -- string or list of strings; specifies columns to be X in DataFrame
+        y -- string or list of strings; specifies columns to be Y in DataFrame
+        data -- pd.DataFrame or list; data to be used to create X and Y
+            if no data specified, self.data is used
+
+        return:
+        xy_dict -- dictionary of numpy arrays; number of arrays depends on `data`
+        '''
+        def onehot(df: pd.DataFrame) -> np.array:
+            unique, inverse = np.unique(df.to_numpy(), return_inverse=True)
+            onehot = np.eye(unique.shape[0])[inverse].transpose()
+            return onehot
+
+        if not data:
+            data = self.data
+
+        sets = (('X_train', 'Y_train'), ('X_dev', 'Y_dev'), ('X_test', 'Y_test'))
+        xy_dict = {}
+        if type(data) == list:
+            for i, df in enumerate(data):
+                if i > 2: break
+                xy_dict[sets[i][0]] = df.loc[:, x].to_numpy().transpose()
+                xy_dict[sets[i][1]] = onehot(df.loc[:, y])
+        else:
+            xy_dict['X'] = df.loc[:, x].to_numpy().transpose()
+            xy_dict['Y'] = onehot(df.loc[:, y])
+        
+        return xy_dict
