@@ -2,7 +2,7 @@ from glob import glob
 from math import ceil
 import numpy as np
 import pandas as pd
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 
 class Data:
@@ -115,9 +115,9 @@ class Data:
 
     def create_XY(
             self,
-            x: str | List[str],
-            y: str | List[str],
-            data: pd.DataFrame | List[pd.DataFrame] = None,
+            x: Union[str, List[str]],
+            y: Union[str, List[str]],
+            data: Union[pd.DataFrame, List[pd.DataFrame]] = None,
             ) -> Tuple[np.ndarray]:
         '''
         Returns the X and Y data for a given DataFrame. If list of DF given, 
