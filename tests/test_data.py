@@ -24,6 +24,29 @@ def read_data() -> Dict[str, pd.DataFrame]:
     return {'test_data1': test_data1, 'test_data2': test_data2}
 
 
+@pytest.fixture(scope='class')
+def split_data() -> Dict[str, pd.DataFrame]:
+    '''
+    Returns dict of <> pd.DataFrames to validate TestSplittingData.
+    '''
+    test_train1 = pd.DataFrame({'a': [i for i in range(1, 81)]})
+    test_dev1 = pd.DataFrame({'a': [i for i in range(81, 91)]})
+    test_test1 = pd.DataFrame({'a': [i for i in range(91, 101)]})
+
+    test_train2 = pd.DataFrame({'a': [i for i in range(1, 95)]})
+    test_dev2 = pd.DataFrame({'a': [i for i in range(95, 98)]})
+    test_test2 = pd.DataFrame({'a': [i for i in range(98, 101)]})
+
+    test_train3 = pd.DataFrame({'a': [i for i in range(1, 76)]})
+    test_dev3 = pd.DataFrame({'a': [i for i in range(76, 81)]})
+    test_test3 = pd.DataFrame({'a': [i for i in range(81, 101)]})
+    
+    return {'train1': test_train1, 'dev1': test_dev1, 'test1': test_test1,
+            'train2': test_train2, 'dev2': test_dev2, 'test2': test_test2,
+            'train3': test_train3, 'dev3': test_dev3, 'test3': test_test3,
+    }
+
+
 class TestReadingData:
     '''
     Suite of tests to test the reading in of data by data_handler.py.
@@ -69,3 +92,75 @@ class TestReadingData:
         '''
         with pytest.raises(pd.errors.DataError, match='All columns must'):
             data_class.collect_data('tests/data/dummy_data3')
+
+
+class TestSplittingData:
+    '''
+    Suite of tests to test the splitting of data by data_handler.py.
+    '''
+    def test_split_80_10_10(self, data_class, split_data):
+        '''
+        Tests if Data.split() can split data correctly with 80/10/10 split.
+        '''
+        data_class.data = pd.DataFrame({'a': [i for i in range(1, 101)]})
+        data_class.split((0.8, 0.1, 0.1))
+
+        assert_frame_equal(data_class.train, split_data['train1'])
+        assert_frame_equal(data_class.dev, split_data['dev1'])
+        assert_frame_equal(data_class.test, split_data['test1'])
+
+    def test_split_95_25_25(self, data_class, split_data):
+        '''
+        Tests if Data.split() can split data correctly with 95/2.5/2.5 split.
+        '''
+        data_class.data = pd.DataFrame({'a': [i for i in range(1, 101)]})
+        data_class.split((0.95, 0.025, 0.025))
+
+        assert_frame_equal(data_class.train, split_data['train2'])
+        assert_frame_equal(data_class.dev, split_data['dev2'])
+        assert_frame_equal(data_class.test, split_data['test2'])
+
+    def test_split_75_05_20(self, data_class, split_data):
+        '''
+        Tests if Data.split() can split data correctly with 75/05/20 split.
+        '''
+        data_class.data = pd.DataFrame({'a': [i for i in range(1, 101)]})
+        data_class.split((0.75, 0.05, 0.20))
+
+        assert_frame_equal(data_class.train, split_data['train3'])
+        assert_frame_equal(data_class.dev, split_data['dev3'])
+        assert_frame_equal(data_class.test, split_data['test3'])
+
+    def test_split_too_big(self, data_class):
+        '''
+        Tests is Data.split() catches splits > sum == 1.0.
+        '''
+        data_class.data = pd.DataFrame({'a': [i for i in range(1, 101)]})
+        with pytest.raises(ValueError, match='Split error.'):
+            data_class.split((0.8, 0.1, 0.11))
+
+    def test_split_too_small(self, data_class):
+        '''
+        Tests is Data.split() catches splits < sum == 1.0.
+        '''
+        data_class.data = pd.DataFrame({'a': [i for i in range(1, 101)]})
+        with pytest.raises(ValueError, match='Split error.'):
+            data_class.split((0.8, 0.09, 0.10))
+
+    def test_split_too_long(self, data_class):
+        '''
+        Tests is Data.split() catches splits len > 3.
+        '''
+        data_class.data = pd.DataFrame({'a': [i for i in range(1, 101)]})
+        with pytest.raises(ValueError, match='Split error.'):
+            data_class.split((0.8, 0.1, 0.09, 0.01))
+
+    def test_split_too_short(self, data_class):
+        '''
+        Tests is Data.split() catches splits len < 3.
+        '''
+        data_class.data = pd.DataFrame({'a': [i for i in range(1, 101)]})
+        with pytest.raises(ValueError, match='Split error.'):
+            data_class.split((0.9, 0.1,))
+
+

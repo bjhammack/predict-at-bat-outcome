@@ -31,13 +31,14 @@ class Data:
         source -- string; directory or CSV where raw data is stored.
         data -- pandas DataFrame; pre-collected data.
         '''
-        self.data = self.train = self.dev = self.test = self.split = self.source = None  # noqa: E501
+        self.data = self.train = self.dev = self.test = self.splits = self.source = None  # noqa: E501
 
         if data:
             self.data = data
             self.source = 'Pre-collected'
         elif source and not data:
             self.data = self.collect_data(source)
+            self.source = source
 
     def collect_data(self, source: str) -> pd.DataFrame:
         '''
@@ -79,7 +80,7 @@ class Data:
         return data
 
     def split(self, split: Tuple[float, float, float]):
-        self.split = split
+        self.splits = split
         if len(split) != 3 or split[0]+split[1]+split[2] != 1:
             raise ValueError(
                 'Split error. Given split needs to be len = 3 and add up to 1.'
@@ -95,9 +96,9 @@ class Data:
         if (train_len + dev_len + test_len) != data_len:
             train_len = (data_len - (dev_len + test_len))
 
-        self.train = self.data.iloc[:train_len]
-        self.dev = self.data.iloc[train_len:(train_len + dev_len)]
-        self.test = self.data.iloc[(train_len + dev_len):]        
+        self.train = self.data.iloc[:train_len].reset_index(drop=True)
+        self.dev = self.data.iloc[train_len:(train_len + dev_len)].reset_index(drop=True)
+        self.test = self.data.iloc[(train_len + dev_len):].reset_index(drop=True)
 
     def shuffle(self, seed: int = np.random.randint(1, 1e+6)):
         '''
