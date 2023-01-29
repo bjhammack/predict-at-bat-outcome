@@ -117,7 +117,7 @@ class Data:
     def create_XY(
             self,
             x: Union[str, List[str]],
-            y: Union[str, List[str]],
+            y: str,
             data: Union[pd.DataFrame, List[pd.DataFrame]] = None,
             ) -> Tuple[np.ndarray]:
         '''
@@ -135,7 +135,7 @@ class Data:
         '''
         def onehot(df: pd.DataFrame) -> np.array:
             unique, inverse = np.unique(df.to_numpy(), return_inverse=True)
-            onehot = np.eye(unique.shape[0])[inverse].transpose()
+            onehot = np.eye(unique.shape[0])[inverse]
             return onehot
 
         if not data:
@@ -146,10 +146,10 @@ class Data:
         if type(data) == list:
             for i, df in enumerate(data):
                 if i > 2: break
-                xy_dict[sets[i][0]] = df.loc[:, x].to_numpy().transpose()
+                xy_dict[sets[i][0]] = df.loc[:, x].to_numpy()
                 xy_dict[sets[i][1]] = onehot(df.loc[:, y])
         else:
-            xy_dict['X'] = df.loc[:, x].to_numpy().transpose()
-            xy_dict['Y'] = onehot(df.loc[:, y])
+            xy_dict['X'] = data.loc[:, x].to_numpy()
+            xy_dict['Y'] = onehot(data.loc[:, y])
         
         return xy_dict
