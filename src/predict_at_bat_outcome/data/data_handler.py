@@ -2,6 +2,8 @@ from glob import glob
 from math import ceil
 import numpy as np
 import pandas as pd
+import torch
+from torch.utils.data import DataLoader, TensorDataset
 from typing import List, Optional, Tuple, Union
 
 
@@ -79,6 +81,22 @@ class Data:
 
         return data
 
+    def clean(self):
+        drop = ['sac_fly_double_play', 'batter_interference',
+            'sac_bunt_double_play', 'hit_by_pitch', 'interf_def']
+        field_out = ['fielders_choice', 'triple_play','sac_bunt',
+            'fielders_choice_out', 'double_play', 'field_error',
+            'force_out', 'grounded_into_double_play', 'sac_fly']
+        strikeout = ['strikeout_double_play']
+        walk = ['intent_walk']
+
+        self.data = self.data.loc[~self.data.result.isin(drop)]
+        self.data.loc[self.data.result.isin(field_out), ['result']] = 'field_out'
+        self.data.loc[self.data.result.isin(strikeout), ['result']] = 'strikeout'
+        self.data.loc[self.data.result.isin(walk), ['result']] = 'walk'
+        self.data = self.data.fillna(0.)
+        self.data = self.data.loc[~self.data.result.isin(('strikeout','walk'))]
+
     def split(self, split: Tuple[float, float, float]):
         self.splits = split
         if len(split) != 3 or split[0]+split[1]+split[2] != 1:
@@ -111,7 +129,11 @@ class Data:
         perm = np.random.RandomState(seed=seed).permutation(data_len)
         self.data = self.data.iloc[perm].reset_index(drop=True)
 
-    def normalize(self):
+    def normalize(self, X: np.array) -> np.array:
+        '''
+        Returns normalized numpy array and saves norming values.
+        (should only pass training data to this function)
+        '''
         return
 
     def create_XY(
@@ -133,10 +155,18 @@ class Data:
         return:
         xy_dict -- dictionary of numpy arrays; number of arrays depends on `data`
         '''
-        def onehot(df: pd.DataFrame) -> np.array:
-            unique, inverse = np.unique(df.to_numpy(), return_inverse=True)
-            onehot = np.eye(unique.shape[0])[inverse]
-            return onehot
+        def map_results(df):
+            map = {
+                # 'strikeout': 0,
+                # 'walk': 2,
+                'field_out': 0,
+                'single': 1,
+                'double': 2,
+                'triple': 3,
+                'home_run': 4,
+            }
+            df = df.replace(map)
+            return df
 
         if not data:
             data = self.data
@@ -147,9 +177,20 @@ class Data:
             for i, df in enumerate(data):
                 if i > 2: break
                 xy_dict[sets[i][0]] = df.loc[:, x].to_numpy()
-                xy_dict[sets[i][1]] = onehot(df.loc[:, y])
+                xy_dict[sets[i][1]] = map_results(df.loc[:, [y]]).to_numpy().squeeze()
         else:
             xy_dict['X'] = data.loc[:, x].to_numpy()
-            xy_dict['Y'] = onehot(data.loc[:, y])
+            xy_dict['Y'] = map_results(data.loc[:, [y]]).to_numpy().squeeze()
         
         return xy_dict
+
+    def pytorch_prep(self, xy_dict):
+        tensors = {k: torch.from_numpy(v).to(torch.float) for k, v in xy_dict.items()}
+        for y in ('Y_train', 'Y_dev', 'Y_test'):
+            tensors[y] = tensors[y].to(torch.long)
+
+        train_dl = DataLoader(TensorDataset(tensors['X_train'], tensors['Y_train']))
+        dev_dl = DataLoader(TensorDataset(tensors['X_dev'], tensors['Y_dev']))
+        test_dl = DataLoader(TensorDataset(tensors['X_test'], tensors['Y_test']))
+
+        return {'train': train_dl, 'dev': dev_dl, 'test': test_dl}
