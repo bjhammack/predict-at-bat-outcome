@@ -28,16 +28,8 @@ def train(train_dl: DataLoader, dev_dl: DataLoader, hparams: Dict[str, Any]):
         model.train(True)
         avg_loss = train_epoch(current_epoch, model, train_dl, loss_func, optimizer, batch_size)
         model.train(False)
-
-        running_vloss = 0.0
-        for i, vdata in enumerate(dev_dl):
-            vinputs, vlabels = vdata
-            voutputs = model(vinputs)
-            vloss = loss_func(voutputs, vlabels)
-            running_vloss += vloss
-        avg_vloss = running_vloss / (i + 1)
-        print('Train loss:', avg_loss, 'Dev loss:', avg_vloss)
-
+        avg_vloss = validate_dev(model, loss_func, dev_dl)
+        print('\nTrain loss:', avg_loss, 'Dev loss:', avg_vloss.item())
         if avg_vloss < best_vloss:
             best_vloss = avg_vloss
         current_epoch += 1
@@ -51,8 +43,8 @@ def train_epoch(e_index, model, train_dl, loss_func, optimizer, batch_size):
 
     for i, data in enumerate(train_dl):
         inputs, labels = data
-        inputs_m, inputs_s = inputs.mean(), inputs.std()
-        inputs = (inputs - inputs_m) / inputs_s
+        # inputs_m, inputs_s = inputs.mean(), inputs.std()
+        # inputs = (inputs - inputs_m) / inputs_s
 
         optimizer.zero_grad()
 
@@ -70,7 +62,20 @@ def train_epoch(e_index, model, train_dl, loss_func, optimizer, batch_size):
 
         if i % batch_size == batch_size-1:
             last_loss = running_loss / batch_size
-            print('    batch {} loss: {} acc: {:.2f}'.format(i + 1, last_loss, acc))
+            sys.stdout.write('\r    batch {} loss: {:.4f} acc: {:.2f}'.format(i + 1, last_loss, acc))
+            sys.stdout.flush()
             running_loss = 0.
 
     return last_loss   
+
+
+def validate_dev(model, loss_func, dev_dl):
+    running_vloss = 0.0
+    for i, vdata in enumerate(dev_dl):
+        vinputs, vlabels = vdata
+        voutputs = model(vinputs)
+        vloss = loss_func(voutputs, vlabels)
+        running_vloss += vloss
+    avg_vloss = running_vloss / (i + 1)
+    
+    return avg_vloss

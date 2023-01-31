@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 
 class Data:
@@ -33,7 +33,7 @@ class Data:
         source -- string; directory or CSV where raw data is stored.
         data -- pandas DataFrame; pre-collected data.
         '''
-        self.data = self.train = self.dev = self.test = self.splits = self.source = None  # noqa: E501
+        self.data = self.train = self.dev = self.test = self.splits = self.source = self.norm_mean = self.norm_std = None  # noqa: E501
 
         if data:
             self.data = data
@@ -95,7 +95,7 @@ class Data:
         self.data.loc[self.data.result.isin(strikeout), ['result']] = 'strikeout'
         self.data.loc[self.data.result.isin(walk), ['result']] = 'walk'
         self.data = self.data.fillna(0.)
-        self.data = self.data.loc[~self.data.result.isin(('strikeout','walk'))]
+        self.data = self.data.loc[~self.data.result.isin(('strikeout','walk','field_out'))]
 
     def split(self, split: Tuple[float, float, float]):
         self.splits = split
@@ -141,7 +141,7 @@ class Data:
             x: Union[str, List[str]],
             y: str,
             data: Union[pd.DataFrame, List[pd.DataFrame]] = None,
-            ) -> Tuple[np.ndarray]:
+            ) -> Dict[str, np.ndarray]:
         '''
         Returns the X and Y data for a given DataFrame. If list of DF given, 
         first is train, second is dev, third is test, any others are ignored.
@@ -159,11 +159,11 @@ class Data:
             map = {
                 # 'strikeout': 0,
                 # 'walk': 2,
-                'field_out': 0,
-                'single': 1,
-                'double': 2,
-                'triple': 3,
-                'home_run': 4,
+                # 'field_out': 0,
+                'single': 0,
+                'double': 1,
+                'triple': 2,
+                'home_run': 3,
             }
             df = df.replace(map)
             return df
@@ -182,6 +182,13 @@ class Data:
             xy_dict['X'] = data.loc[:, x].to_numpy()
             xy_dict['Y'] = map_results(data.loc[:, [y]]).to_numpy().squeeze()
         
+        return xy_dict
+
+    def normalize(self, xy_dict) -> Dict[str, np.array]:
+        self.norm_mean = np.mean(xy_dict['X_train'])
+        self.norm_std = np.std(xy_dict['X_train'])
+        for dataset in ('X_train', 'X_dev','X_test'):
+            xy_dict[dataset] = (xy_dict[dataset] - self.norm_mean) / self.norm_std
         return xy_dict
 
     def pytorch_prep(self, xy_dict):

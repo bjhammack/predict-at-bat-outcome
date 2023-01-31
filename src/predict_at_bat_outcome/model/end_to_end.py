@@ -5,24 +5,31 @@ if '..' not in sys.path:
 
 from torch import nn
 from torch.optim import Adam
+from torch.utils.data import DataLoader
 from data.data_handler import Data
 from train import train
+from typing import Dict, Tuple
 
 
-def main():
-    abs = Data('F:/baseball/active_player_abs/')
-    abs.clean()
-    abs.shuffle(seed=1)
-    classes = list(abs.data.result.unique())
-    abs.split((0.9, 0.05, 0.05))
-    xy_dict = abs.create_XY(
+def get_data(source: str) -> Tuple[Dict[str, DataLoader], Tuple[str]]:
+    atbats = Data(source)
+    atbats.clean()
+    atbats.shuffle(seed=1)
+    classes = tuple(atbats.data.result.unique())
+    atbats.split((0.9, 0.05, 0.05))
+    xy_dict = atbats.create_XY(
         x=['exit_velocity', 'launch_angle', 'pitch_velocity'],
         y='result',
-        data=[abs.train, abs.dev, abs.test]
+        data=[atbats.train, atbats.dev, atbats.test]
         )
-    dls = abs.pytorch_prep(xy_dict)
+    atbats.normalize(xy_dict)
+    dls = atbats.pytorch_prep(xy_dict)
+    
+    return dls, classes
 
-    hidden_layers = [
+
+def get_hidden_layers():
+    return [
         nn.Linear(3, 32),
         nn.ReLU(),
         nn.Linear(32, 64),
@@ -31,17 +38,23 @@ def main():
         nn.ReLU(),
         nn.Linear(64, 32),
         nn.ReLU(),
-        nn.Linear(32, 5),
+        nn.Linear(32, 4),
     ]
-    hparams = {
-        'hidden_layers': hidden_layers,
+
+
+def get_hyperparameters():
+    return {
+        'hidden_layers': get_hidden_layers(),
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
         'lr': 0.001,
-        'epochs': 1,
-        'batch_size': 10000,
+        'epochs': 10,
+        'batch_size': 1500,
     }
 
+def main():
+    dls, classes = get_data('F:/baseball/active_player_abs/')
+    hparams = get_hyperparameters()
     model = train(dls['train'], dls['dev'], hparams)
 
 
