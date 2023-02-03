@@ -2,15 +2,16 @@ import sys
 if '..' not in sys.path:
     sys.path.insert(0, '..')
     sys.path.insert(0, '.')
-
+import logging
 from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from data.data_handler import Data
 from train import train
 from typing import Dict, Tuple
+from utils import timer, set_log_file
 
-
+@timer
 def get_data(source: str) -> Tuple[Dict[str, DataLoader], Tuple[str]]:
     atbats = Data(source)
     atbats.clean()
@@ -52,11 +53,19 @@ def get_hyperparameters():
         'batch_size': 1500,
     }
 
-def main():
-    dls, classes = get_data('F:/baseball/active_player_abs/')
+@timer
+def main(data_source):
+    dls, classes = get_data(data_source)
+    logging.info(f'Data source: {data_source}')
     hparams = get_hyperparameters()
+    logging.info(f'Hyperparameters: ')
+    for k, v in hparams.items():
+        logging.info(f'\t{k}: {v}')
+
     model = train(dls['train'], dls['dev'], hparams)
 
 
 if __name__ == '__main__':
-    main()
+    log_loc = 'training_logs'
+    logging.basicConfig(filename=set_log_file(log_loc), level=logging.INFO)
+    main('F:/baseball/active_player_abs/')

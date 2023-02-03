@@ -2,7 +2,7 @@ import sys
 if '..' not in sys.path:
     sys.path.insert(0, '..')
     sys.path.insert(0, '.')
-
+import logging
 from model import NeuralNetwork
 from torch import nn
 from torch.optim import Adam
@@ -10,8 +10,10 @@ from torch.utils.data import DataLoader, TensorDataset
 import torch
 from data.data_handler import Data
 from typing import Any, Dict
+from utils import timer
 
 
+@timer
 def train(train_dl: DataLoader, dev_dl: DataLoader, hparams: Dict[str, Any]):
     model = NeuralNetwork(hparams['hidden_layers'])
 
@@ -34,7 +36,7 @@ def train(train_dl: DataLoader, dev_dl: DataLoader, hparams: Dict[str, Any]):
             best_vloss = avg_vloss
         current_epoch += 1
 
-
+@timer
 def train_epoch(e_index, model, train_dl, loss_func, optimizer, batch_size):
     running_loss = 0.
     last_loss = 0.
@@ -68,7 +70,7 @@ def train_epoch(e_index, model, train_dl, loss_func, optimizer, batch_size):
 
     return last_loss   
 
-
+@timer
 def validate_dev(model, loss_func, dev_dl):
     running_vloss = 0.0
     for i, vdata in enumerate(dev_dl):
