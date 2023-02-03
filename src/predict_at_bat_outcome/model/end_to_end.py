@@ -20,12 +20,9 @@ def get_data(
     atbats = Data(source)
     logging.info(f'Data source: {source}')
     atbats.clean()
-    atbats.shuffle(seed=1)
-    atbats.data = atbats.data.iloc[:5000]
-    
+    atbats.shuffle(seed=1)    
     classes = tuple(atbats.data.result.unique())
     atbats.split(split)
-    logging.info(f'{atbats.test.result.value_counts()}')
     xy_dict = atbats.create_XY(
         x=['exit_velocity', 'launch_angle', 'pitch_velocity'],
         y='result',
