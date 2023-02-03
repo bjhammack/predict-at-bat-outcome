@@ -1,6 +1,5 @@
 from datetime import datetime
 import functools
-from glob import glob
 import logging
 from time import perf_counter
 
@@ -17,10 +16,19 @@ def timer(func):
     return wrapper_timer
 
 
-def set_log_file(folder: str, prefix: str = 'log') -> str:
+def set_dated_file(folder: str, prefix: str, suffix: str) -> str:
+    def format_datetime(dt):
+        year = str(dt.year)[-2:]
+        month = str(dt.month) if dt.month > 9 else '0'+str(dt.month)
+        day = str(dt.day) if dt.day > 9 else '0'+str(dt.day)
+        hour = str(dt.hour) if dt.hour > 9 else '0'+str(dt.hour)
+        minute = str(dt.minute) if dt.minute > 9 else '0'+str(dt.minute)
+        second = str(dt.second) if dt.second > 9 else '0'+str(dt.second)
+        return year, month, day, hour, minute, second
+
     now = datetime.now()
+    year, month, day, hour, minute, second = format_datetime(now)
     filename = (
-        f'{prefix}_{now.year}-{now.month}-{now.day}_'
-        f'{now.hour}.{now.minute}.{now.second}.log'
+        f'{prefix}_{year}{month}{day}_{hour}{minute}{second}{suffix}'
         )
     return f'{folder}/{filename}'

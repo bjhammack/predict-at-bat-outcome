@@ -8,36 +8,40 @@ from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader, TensorDataset
 import torch
+from tqdm import tqdm
 from data.data_handler import Data
 from typing import Any, Dict
 from utils import timer
 
 
 @timer
-def train(train_dl: DataLoader, dev_dl: DataLoader, hparams: Dict[str, Any]):
+def train(dls: Dict[str, DataLoader], hparams: Dict[str, Any]):
     model = NeuralNetwork(hparams['hidden_layers'])
 
     loss_func = hparams['loss_func']
     optimizer = hparams['optimizer'](model.parameters(), lr=hparams['lr'])
 
-    current_epoch = 0
     epochs = hparams['epochs']
     batch_size = hparams['batch_size']
 
     best_vloss = 1_000_000
-    for epoch in range(epochs):
-        print('EPOCH {}:'.format(current_epoch + 1))
+    pbar = tqdm(range(1, epochs+1))
+    for epoch in pbar:
         model.train(True)
-        avg_loss = train_epoch(current_epoch, model, train_dl, loss_func, optimizer, batch_size)
+        avg_loss = train_epoch(epoch, model, dls['train'], loss_func, optimizer, batch_size, pbar)
         model.train(False)
-        avg_vloss = validate_dev(model, loss_func, dev_dl)
-        print('\nTrain loss:', avg_loss, 'Dev loss:', avg_vloss.item())
+        avg_vloss = validate_dev(model, loss_func, dls['dev'])
+        logging.info(
+            f'EPOCH {epoch}: Train loss: {avg_loss:.4f}; '
+            f'Dev loss: {avg_vloss.item():.4f}'
+            )
         if avg_vloss < best_vloss:
             best_vloss = avg_vloss
-        current_epoch += 1
 
-@timer
-def train_epoch(e_index, model, train_dl, loss_func, optimizer, batch_size):
+    return model
+
+
+def train_epoch(epoch, model, train_dl, loss_func, optimizer, batch_size, pbar):
     running_loss = 0.
     last_loss = 0.
     correct_labels = 0
@@ -64,13 +68,12 @@ def train_epoch(e_index, model, train_dl, loss_func, optimizer, batch_size):
 
         if i % batch_size == batch_size-1:
             last_loss = running_loss / batch_size
-            sys.stdout.write('\r    batch {} loss: {:.4f} acc: {:.2f}'.format(i + 1, last_loss, acc))
-            sys.stdout.flush()
+            pbar.set_description(f'Epoch {epoch}: batch {i+1}; loss: {last_loss:.4f}; acc: {acc:.2f}')
             running_loss = 0.
 
     return last_loss   
 
-@timer
+
 def validate_dev(model, loss_func, dev_dl):
     running_vloss = 0.0
     for i, vdata in enumerate(dev_dl):

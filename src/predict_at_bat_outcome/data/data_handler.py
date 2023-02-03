@@ -162,8 +162,8 @@ class Data:
                 # 'field_out': 0,
                 'single': 0,
                 'double': 1,
-                'triple': 2,
-                'home_run': 3,
+                'home_run': 2,
+                'triple': 3,
             }
             df = df.replace(map)
             return df
