@@ -6,6 +6,7 @@ import logging
 from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from data.data_handler import Data
 from test import evaluate
 from train import train
@@ -25,7 +26,6 @@ def get_data(
 
     atbats.clean()
     atbats.shuffle(seed=1)
-    # atbats.data = atbats.data.iloc[:1000]
     classes = tuple(atbats.data.result.unique())
     atbats.split(split)
     xy_dict = atbats.create_XY(
@@ -33,7 +33,7 @@ def get_data(
         y='result',
         data=[atbats.train, atbats.dev, atbats.test]
         )
-    atbats.normalize(xy_dict)
+    xy_dict = atbats.normalize(xy_dict)
 
     logging.info(f'Data normalization mean: {atbats.norm_mean}; std: {atbats.norm_std}')
 
@@ -56,7 +56,7 @@ def get_hidden_layers():
         nn.ReLU(),
         nn.Linear(64, 32),
         nn.ReLU(),
-        nn.Linear(32, 4),
+        nn.Linear(32, 5),
     ]
 
 
@@ -67,8 +67,8 @@ def get_hyperparameters():
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
         'lr': 0.001,
-        'epochs': 5,
-        'batch_size': 1000,
+        'epochs': 100,
+        'batch_size': 3000,
     }
 
 
@@ -95,8 +95,10 @@ def main(data_source, save_path, checkpoint_path):
         else:
             logging.info(f'\t{k}: {v}')
 
-    model = train(dls, hparams)
+    writer = SummaryWriter()
+    model = train(dls, hparams, writer)
     eval = evaluate(model, hparams['loss_func'], dls['test'])
+    writer.close()
 
     logging.info(f"TEST: loss: {eval['loss']:.4f}; accuracy: {eval['accuracy']:.2f}")
 

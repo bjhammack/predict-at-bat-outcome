@@ -95,7 +95,7 @@ class Data:
         self.data.loc[self.data.result.isin(strikeout), ['result']] = 'strikeout'
         self.data.loc[self.data.result.isin(walk), ['result']] = 'walk'
         self.data = self.data.fillna(0.)
-        self.data = self.data.loc[~self.data.result.isin(('strikeout','walk','field_out'))]
+        self.data = self.data.loc[~self.data.result.isin(('strikeout','walk'))]
 
     def split(self, split: Tuple[float, float, float]):
         self.splits = split
@@ -159,11 +159,11 @@ class Data:
             map = {
                 # 'strikeout': 0,
                 # 'walk': 2,
-                # 'field_out': 0,
-                'single': 0,
-                'double': 1,
-                'home_run': 2,
-                'triple': 3,
+                'field_out': 0,
+                'single': 1,
+                'double': 2,
+                'home_run': 3,
+                'triple': 4,
             }
             df = df.replace(map)
             return df
