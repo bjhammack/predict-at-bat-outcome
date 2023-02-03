@@ -58,8 +58,12 @@ def main(data_source):
     dls, classes = get_data(data_source)
     logging.info(f'Data source: {data_source}')
     hparams = get_hyperparameters()
-    logging.info(f'Hyperparameters: ')
+    logging.info(f'Hyperparameters:')
     for k, v in hparams.items():
+        if type(v) == list:
+            logging.info(f'\t{k}:')
+            for i in v:
+                logging.info(f'\t\t{i}')
         logging.info(f'\t{k}: {v}')
 
     model = train(dls['train'], dls['dev'], hparams)
