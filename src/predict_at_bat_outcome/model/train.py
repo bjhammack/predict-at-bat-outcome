@@ -46,7 +46,6 @@ def train_epoch(epoch, model, train_dl, loss_func, optimizer, batch_size, pbar):
     last_loss = 0.
     correct_labels = 0
     total_labels = 0
-
     for i, data in enumerate(train_dl):
         inputs, labels = data
         # inputs_m, inputs_s = inputs.mean(), inputs.std()
@@ -59,6 +58,7 @@ def train_epoch(epoch, model, train_dl, loss_func, optimizer, batch_size, pbar):
         loss.backward()
         optimizer.step()
         # schedular.step()
+        # logging.info(f'INFO --{i}; {len(labels)}; {batch_size}; {len(labels) * batch_size}')
 
         running_loss += loss.item()
         _, prediction = torch.max(outputs, 1)
@@ -66,12 +66,12 @@ def train_epoch(epoch, model, train_dl, loss_func, optimizer, batch_size, pbar):
         total_labels += prediction.shape[0]
         acc = correct_labels / total_labels
 
-        if i % batch_size == batch_size-1:
-            last_loss = running_loss / batch_size
+        if i % len(train_dl) == len(train_dl)-1:
+            last_loss = running_loss / len(train_dl)
             pbar.set_description(f'Epoch {epoch}: batch {i+1}; loss: {last_loss:.4f}; acc: {acc:.2f}')
             running_loss = 0.
 
-    return last_loss   
+    return last_loss
 
 
 def validate_dev(model, loss_func, dev_dl):

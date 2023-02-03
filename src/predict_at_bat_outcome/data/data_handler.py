@@ -191,12 +191,15 @@ class Data:
             xy_dict[dataset] = (xy_dict[dataset] - self.norm_mean) / self.norm_std
         return xy_dict
 
-    def pytorch_prep(self, xy_dict):
+    def pytorch_prep(self, xy_dict, batch_size):
         tensors = {k: torch.from_numpy(v).to(torch.float) for k, v in xy_dict.items()}
         for y in ('Y_train', 'Y_dev', 'Y_test'):
             tensors[y] = tensors[y].to(torch.long)
 
-        train_dl = DataLoader(TensorDataset(tensors['X_train'], tensors['Y_train']))
+        train_dl = DataLoader(
+            TensorDataset(tensors['X_train'], tensors['Y_train']),
+            batch_size = batch_size
+            )
         dev_dl = DataLoader(TensorDataset(tensors['X_dev'], tensors['Y_dev']))
         test_dl = DataLoader(TensorDataset(tensors['X_test'], tensors['Y_test']))
 

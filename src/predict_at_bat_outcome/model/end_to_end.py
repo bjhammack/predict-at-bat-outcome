@@ -12,15 +12,20 @@ from train import train
 from typing import Dict, Tuple
 from utils import timer, set_dated_file
 
+
 @timer
 def get_data(
         source: str,
-        split: Tuple[float]
+        split: Tuple[float],
+        batch: int,
         ) -> Tuple[Dict[str, DataLoader], Tuple[str]]:
     atbats = Data(source)
+
     logging.info(f'Data source: {source}')
+
     atbats.clean()
-    atbats.shuffle(seed=1)    
+    atbats.shuffle(seed=1)
+    # atbats.data = atbats.data.iloc[:1000]
     classes = tuple(atbats.data.result.unique())
     atbats.split(split)
     xy_dict = atbats.create_XY(
@@ -29,8 +34,10 @@ def get_data(
         data=[atbats.train, atbats.dev, atbats.test]
         )
     atbats.normalize(xy_dict)
+
     logging.info(f'Data normalization mean: {atbats.norm_mean}; std: {atbats.norm_std}')
-    dls = atbats.pytorch_prep(xy_dict)
+
+    dls = atbats.pytorch_prep(xy_dict, batch)
     
     return dls, classes
 
@@ -41,7 +48,11 @@ def get_hidden_layers():
         nn.ReLU(),
         nn.Linear(32, 64),
         nn.ReLU(),
-        nn.Linear(64, 64),
+        nn.Linear(64, 128),
+        nn.ReLU(),
+        nn.Linear(128, 128),
+        nn.ReLU(),
+        nn.Linear(128, 64),
         nn.ReLU(),
         nn.Linear(64, 32),
         nn.ReLU(),
@@ -56,8 +67,8 @@ def get_hyperparameters():
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
         'lr': 0.001,
-        'epochs': 1,
-        'batch_size': 1500,
+        'epochs': 5,
+        'batch_size': 1000,
     }
 
 
@@ -65,10 +76,15 @@ def get_hyperparameters():
 def main(data_source, save_path, checkpoint_path):
     logging.info(f'Model will be saved at: \'{save_path}\'')
     logging.info(f'Checkpoints will be saved at: \'{checkpoint_path}\'')
+
     hparams = get_hyperparameters()
-    dls, classes = get_data(data_source, hparams['split'])
+    dls, classes = get_data(data_source, hparams['split'], hparams['batch_size'])
+
     for dl in ('train', 'dev', 'test'):
-        logging.info(f'{dl} size: {len(dls[dl])}')
+        if dl == 'train':
+            logging.info(f'{dl} size: ~{len(dls[dl])} * {hparams["batch_size"]}')
+        else:
+            logging.info(f'{dl} size: {len(dls[dl])}')
     logging.info(f'Classes: {classes}')
     logging.info(f'Hyperparameters:')
     for k, v in hparams.items():
@@ -81,6 +97,7 @@ def main(data_source, save_path, checkpoint_path):
 
     model = train(dls, hparams)
     eval = evaluate(model, hparams['loss_func'], dls['test'])
+
     logging.info(f"TEST: loss: {eval['loss']:.4f}; accuracy: {eval['accuracy']:.2f}")
 
     class_acc = {i: [0, 0] for i in classes}
@@ -88,13 +105,16 @@ def main(data_source, save_path, checkpoint_path):
         class_acc[classes[label]][1] += 1
         if pred == label:
             class_acc[classes[label]][0] += 1
-    logging.info(f'Test labels correct/total: {class_acc}')
+
+    logging.info('Label perforamce:')
+    for k, v in class_acc.items():
+        logging.info(f'\t{k}: {v[0]} of {v[1]} correct; {(v[0]/v[1])*100:.2f}%')
 
 
 if __name__ == '__main__':
-    vers = 'v0.1'
+    vers = 'v1.0'
     pre = f'model-{vers}'
-    log_loc = 'training_logs'
+    log_loc = 'logs'
     save_loc = 'saved_models'
     check_loc = 'training_checkpoints'
     check_suf = '_<EPOCH>.model'
