@@ -46,8 +46,7 @@ The data was split 90/5/5 between the train, dev, and test sets.
 | 4     | 128         | 128          | ReLU     |
 | 5     | 128         | 64           | ReLU     |
 | 6     | 64          | 32           | ReLU     |
-| 7     | 32          | 5            | ReLU     |
-| 8     | 5           | 5            | Softmax  |
+| 7     | 32          | 5            | Softmax  |
 
 ### Hyperparameters
 | H-param       | Value              |
