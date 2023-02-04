@@ -16,17 +16,64 @@ This, the first end-to-end training of the model, had a very simple structure to
 
 ### Data
 
+#### Changes
+Very little was done to the data for this exploratory iteration.
+
+- Smaller quantity columns like `fielders_choice` and `triple_play` were rolled up into `field_out`.
+- Since the goal is to classify batted balls, all no-contact plays were droped (strikeouts, walks, etc.).
+- The data was all normalized on the training set's mean and standard deviation, to improve training times and quality.
+
+#### Classes
+This left the data with 536,712 rows and five unique labels:
+- field_out
+- single
+- double
+- triple
+- home_run
+
+#### Distribution
+A known issue going into this iteration is that the distribution of the data is **heavily** skewed. Two thirds of the data are labeled `field_out` on the high end and on the low end `triple` made up 0.7% of the data. The expectation is this will create heavy bias, potentially even reducing multiple labels to zero predictions.
+
+#### Split
+The data was split 90/5/5 between the train, dev, and test sets.
 
 ### Neural Network
-
+Layers (input, output, activation function):
+1. Linear(3, 32, ReLU)
+2. Linear(32, 64, ReLU)
+3. Linear(64, 128, ReLU)
+4. Linear(128, 128, ReLU)
+5. Linear(128, 64, ReLU)
+6. Linear(64, 32, ReLU)
+7. Linear(32, 5, ReLU)
+8. Softmax(5, 5, Softmax)
 
 ### Hyperparameters
-
+| H-param       | Value              |
+|---------------|--------------------|
+| Split         | 90/5/5             |
+| Loss          | Cross Entropy Loss |
+| Optimizer     | Adam               |
+| Learning Rate | 0.001              |
+| Epochs        | 100                |
+| Batch Sizes   | 3,000              |
 
 ### Training
+After training for 100 epochs, the training loss flattened out almost immediatley and all of the dev loss, dev accuracy, and train accuracy did not change at all.
 
+| Loss | Accuracy |
+|:----:|:--------:|
+| ![training_loss](assets/model_graphs/v1.0_train_loss.png) | ![training_acc](assets/model_graphs/v1.0_train_acc.png) |
+| ![dev_loss](assets/model_graphs/v1.0_dev_loss.png) | ![dev_acc](assets/model_graphs/v1.0_dev_acc.png) |
+
+#### Final Evaluation on the test set
+| Loss   | Accuracy |
+|:------:|:--------:|
+| 0.9048 | 0.66     |
 
 ### Evaluation
+It is imeiately apparent that there is some fundamental flaw with this iteration and only a little more digging reveals the truth. For almost every row of data, train, dev, or test, the model predicted `field_out`. Unsurprisingly, this gave the model ~0.66 accuracy for each dataset, since field outs make up two thirds of the data.
 
+While there are other obvious areas to improve the model, it seems data distribution is by far the most pressing issue, as it will measurably impact every future model if not dealt with first. It also eschews the need to continue evaluating this model by other means (precision, recall, etc.), because there is not point overwhelming the second iteration with "to-do's".
 
-### Analysis
+The one benefit of this result is it begins to elucidate the target goal. Since there is no data evaluated by other means (eg. how well a heuristic model performs or how well a human can perform the task), this project lacks a "true" target goal of performance. At least now it is clear that one of the worst possible models will be correct 2 out of 3 times.
