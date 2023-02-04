@@ -5,8 +5,8 @@ Baseball has always been a cutting edge sport in regards to analytics. More and 
 # Table of Contents
 1. [Data](#data)
 2. [Models](#models)
-    1. [v1.0](#v1.0)
-    2. [v2.0](#v2.0)
+    1. [v1.0](#v10)
+    2. [v2.0](#v20)
 
 
 # Data
@@ -85,14 +85,14 @@ The one benefit of this result is it begins to elucidate the target goal. Since 
 
 
 ## v2.0
-This iteration aims to shed more light on the best solution for the data distribution problem uncovered by [v1.0](#v1.0).
+This iteration aims to shed more light on the best solution for the data distribution problem uncovered by [v1.0](#v10).
 
 ### Data
 
 #### Changes
 Because of the heavy skewness towards field outs and singles, in the original dataset (which in the context of baseball makes sense, but severely hurts modeling), this version aims to remedy the problem by redistributing the data, at the cost of a reduction of total samples.
 
-- The same initial cleaning steps were taken as in [v1.0](#v1.0)
+- The same initial cleaning steps were taken as in [v1.0](#v10)
 - Random samples labeled `field_out` or `single` were removed until each label had no more than 40,000 samples.
     - This reduced the total sample size from ~500,000 rows to ~146,000.
 
