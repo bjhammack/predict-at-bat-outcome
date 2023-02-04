@@ -25,13 +25,28 @@ def train(dls: Dict[str, DataLoader], hparams: Dict[str, Any], writer: SummaryWr
         lr=hparams['lr'],
         weight_decay=hparams['weight_decay']
         )
+    scheduler = hparams['scheduler'](
+        optimizer,
+        max_lr=hparams['max_lr'],
+        steps_per_epoch = int(len(dls['train'])),
+        epochs=hparams['epochs'],
+        anneal_strategy='cos',
+        )
 
     epochs = hparams['epochs']
     best_vloss = 1_000_000
     pbar = tqdm(range(1, epochs+1))
     for epoch in pbar:
         model.train(True)
-        loss, train_acc = train_epoch(epoch, model, dls['train'], loss_func, optimizer, writer, pbar)
+        loss, train_acc = train_epoch(
+            epoch,
+            model,
+            dls['train'],
+            loss_func,
+            optimizer,
+            scheduler,
+            pbar,
+            )
         model.train(False)
         vloss, dev_acc = validate_dev(model, loss_func, dls['dev'])
         writer.add_scalar('Loss/train', loss, epoch)
@@ -48,7 +63,7 @@ def train(dls: Dict[str, DataLoader], hparams: Dict[str, Any], writer: SummaryWr
     return model
 
 
-def train_epoch(epoch, model, train_dl, loss_func, optimizer, writer, pbar):
+def train_epoch(epoch, model, train_dl, loss_func, optimizer, scheduler, pbar):
     running_loss = 0.
     last_loss = 0.
     correct_labels = 0
@@ -64,7 +79,7 @@ def train_epoch(epoch, model, train_dl, loss_func, optimizer, writer, pbar):
         loss = loss_func(outputs, labels)
         loss.backward()
         optimizer.step()
-        # schedular.step()
+        scheduler.step()
 
         running_loss += loss.item()
         _, prediction = torch.max(outputs, 1)

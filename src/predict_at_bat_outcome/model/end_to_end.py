@@ -5,6 +5,7 @@ if '..' not in sys.path:
 import logging
 from torch import nn
 from torch.optim import Adam
+from torch.optim.lr_scheduler import OneCycleLR
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from data.data_handler import Data
@@ -66,10 +67,12 @@ def get_hyperparameters():
         'hidden_layers': get_hidden_layers(),
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
-        'lr': 5e-3,
+        'scheduler': OneCycleLR,
+        'lr': 1e-3,
         'epochs': 100,
         'batch_size': 1000,
         'weight_decay': 1e-4,
+        'max_lr': 1e-2,
     }
 
 
@@ -115,7 +118,7 @@ def main(data_source, save_path, checkpoint_path):
 
 
 if __name__ == '__main__':
-    vers = 'v3.1'
+    vers = 'v3.2'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'
