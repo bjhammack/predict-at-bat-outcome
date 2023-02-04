@@ -1,0 +1,338 @@
+INFO:root:Model will be saved at: 'saved_models/model-v2.1_230203_222901.model'
+INFO:root:Checkpoints will be saved at: 'training_checkpoints/model-v2.1_230203_222901_<EPOCH>.model'
+INFO:root:Data source: F:/baseball/active_player_abs/
+INFO:root:Data normalization mean: 65.06645047978067; std: 39.159613734584354
+INFO:root:'get_data' finished: 1.9082s
+INFO:root:train size: ~117 * 1000
+INFO:root:dev size: 14591
+INFO:root:test size: 14591
+INFO:root:Classes: ('single', 'field_out', 'home_run', 'non_hr_xbh')
+INFO:root:Hyperparameters:
+INFO:root:	split: (0.8, 0.1, 0.1)
+INFO:root:	hidden_layers:
+INFO:root:		Linear(in_features=3, out_features=32, bias=True)
+INFO:root:		ReLU()
+INFO:root:		Linear(in_features=32, out_features=64, bias=True)
+INFO:root:		ReLU()
+INFO:root:		Linear(in_features=64, out_features=128, bias=True)
+INFO:root:		ReLU()
+INFO:root:		Linear(in_features=128, out_features=128, bias=True)
+INFO:root:		ReLU()
+INFO:root:		Linear(in_features=128, out_features=64, bias=True)
+INFO:root:		ReLU()
+INFO:root:		Linear(in_features=64, out_features=32, bias=True)
+INFO:root:		ReLU()
+INFO:root:		Linear(in_features=32, out_features=4, bias=True)
+INFO:root:	loss_func: CrossEntropyLoss()
+INFO:root:	optimizer: <class 'torch.optim.adam.Adam'>
+INFO:root:	lr: 0.001
+INFO:root:	epochs: 300
+INFO:root:	batch_size: 1000
+INFO:root:EPOCH 1: Train loss: 1.2498; Dev loss: 1.1144
+INFO:root:EPOCH 2: Train loss: 1.0878; Dev loss: 1.0908
+INFO:root:EPOCH 3: Train loss: 1.0739; Dev loss: 1.0738
+INFO:root:EPOCH 4: Train loss: 1.0692; Dev loss: 1.0715
+INFO:root:EPOCH 5: Train loss: 1.0674; Dev loss: 1.0705
+INFO:root:EPOCH 6: Train loss: 1.0664; Dev loss: 1.0699
+INFO:root:EPOCH 7: Train loss: 1.0662; Dev loss: 1.0697
+INFO:root:EPOCH 8: Train loss: 1.0661; Dev loss: 1.0692
+INFO:root:EPOCH 9: Train loss: 1.0667; Dev loss: 1.0694
+INFO:root:EPOCH 10: Train loss: 1.0689; Dev loss: 1.0719
+INFO:root:EPOCH 11: Train loss: 1.0671; Dev loss: 1.0698
+INFO:root:EPOCH 12: Train loss: 1.0666; Dev loss: 1.0687
+INFO:root:EPOCH 13: Train loss: 1.0659; Dev loss: 1.0682
+INFO:root:EPOCH 14: Train loss: 1.0656; Dev loss: 1.0679
+INFO:root:EPOCH 15: Train loss: 1.0653; Dev loss: 1.0677
+INFO:root:EPOCH 16: Train loss: 1.0649; Dev loss: 1.0673
+INFO:root:EPOCH 17: Train loss: 1.0646; Dev loss: 1.0671
+INFO:root:EPOCH 18: Train loss: 1.0643; Dev loss: 1.0667
+INFO:root:EPOCH 19: Train loss: 1.0639; Dev loss: 1.0668
+INFO:root:EPOCH 20: Train loss: 1.0635; Dev loss: 1.0665
+INFO:root:EPOCH 21: Train loss: 1.0633; Dev loss: 1.0665
+INFO:root:EPOCH 22: Train loss: 1.0629; Dev loss: 1.0665
+INFO:root:EPOCH 23: Train loss: 1.0627; Dev loss: 1.0663
+INFO:root:EPOCH 24: Train loss: 1.0625; Dev loss: 1.0669
+INFO:root:EPOCH 25: Train loss: 1.0620; Dev loss: 1.0666
+INFO:root:EPOCH 26: Train loss: 1.0619; Dev loss: 1.0666
+INFO:root:EPOCH 27: Train loss: 1.0617; Dev loss: 1.0664
+INFO:root:EPOCH 28: Train loss: 1.0613; Dev loss: 1.0663
+INFO:root:EPOCH 29: Train loss: 1.0613; Dev loss: 1.0664
+INFO:root:EPOCH 30: Train loss: 1.0612; Dev loss: 1.0666
+INFO:root:EPOCH 31: Train loss: 1.0607; Dev loss: 1.0669
+INFO:root:EPOCH 32: Train loss: 1.0606; Dev loss: 1.0672
+INFO:root:EPOCH 33: Train loss: 1.0604; Dev loss: 1.0676
+INFO:root:EPOCH 34: Train loss: 1.0603; Dev loss: 1.0672
+INFO:root:EPOCH 35: Train loss: 1.0601; Dev loss: 1.0661
+INFO:root:EPOCH 36: Train loss: 1.0600; Dev loss: 1.0675
+INFO:root:EPOCH 37: Train loss: 1.0598; Dev loss: 1.0669
+INFO:root:EPOCH 38: Train loss: 1.0602; Dev loss: 1.0671
+INFO:root:EPOCH 39: Train loss: 1.0600; Dev loss: 1.0652
+INFO:root:EPOCH 40: Train loss: 1.0595; Dev loss: 1.0652
+INFO:root:EPOCH 41: Train loss: 1.0594; Dev loss: 1.0661
+INFO:root:EPOCH 42: Train loss: 1.0591; Dev loss: 1.0663
+INFO:root:EPOCH 43: Train loss: 1.0590; Dev loss: 1.0654
+INFO:root:EPOCH 44: Train loss: 1.0588; Dev loss: 1.0658
+INFO:root:EPOCH 45: Train loss: 1.0585; Dev loss: 1.0653
+INFO:root:EPOCH 46: Train loss: 1.0587; Dev loss: 1.0652
+INFO:root:EPOCH 47: Train loss: 1.0585; Dev loss: 1.0654
+INFO:root:EPOCH 48: Train loss: 1.0583; Dev loss: 1.0641
+INFO:root:EPOCH 49: Train loss: 1.0581; Dev loss: 1.0651
+INFO:root:EPOCH 50: Train loss: 1.0581; Dev loss: 1.0657
+INFO:root:EPOCH 51: Train loss: 1.0580; Dev loss: 1.0654
+INFO:root:EPOCH 52: Train loss: 1.0578; Dev loss: 1.0647
+INFO:root:EPOCH 53: Train loss: 1.0577; Dev loss: 1.0647
+INFO:root:EPOCH 54: Train loss: 1.0576; Dev loss: 1.0650
+INFO:root:EPOCH 55: Train loss: 1.0575; Dev loss: 1.0641
+INFO:root:EPOCH 56: Train loss: 1.0573; Dev loss: 1.0647
+INFO:root:EPOCH 57: Train loss: 1.0572; Dev loss: 1.0637
+INFO:root:EPOCH 58: Train loss: 1.0571; Dev loss: 1.0648
+INFO:root:EPOCH 59: Train loss: 1.0568; Dev loss: 1.0634
+INFO:root:EPOCH 60: Train loss: 1.0568; Dev loss: 1.0639
+INFO:root:EPOCH 61: Train loss: 1.0568; Dev loss: 1.0642
+INFO:root:EPOCH 62: Train loss: 1.0569; Dev loss: 1.0637
+INFO:root:EPOCH 63: Train loss: 1.0561; Dev loss: 1.0621
+INFO:root:EPOCH 64: Train loss: 1.0565; Dev loss: 1.0642
+INFO:root:EPOCH 65: Train loss: 1.0562; Dev loss: 1.0624
+INFO:root:EPOCH 66: Train loss: 1.0562; Dev loss: 1.0631
+INFO:root:EPOCH 67: Train loss: 1.0560; Dev loss: 1.0633
+INFO:root:EPOCH 68: Train loss: 1.0561; Dev loss: 1.0630
+INFO:root:EPOCH 69: Train loss: 1.0558; Dev loss: 1.0627
+INFO:root:EPOCH 70: Train loss: 1.0558; Dev loss: 1.0618
+INFO:root:EPOCH 71: Train loss: 1.0555; Dev loss: 1.0623
+INFO:root:EPOCH 72: Train loss: 1.0554; Dev loss: 1.0616
+INFO:root:EPOCH 73: Train loss: 1.0555; Dev loss: 1.0621
+INFO:root:EPOCH 74: Train loss: 1.0555; Dev loss: 1.0614
+INFO:root:EPOCH 75: Train loss: 1.0556; Dev loss: 1.0627
+INFO:root:EPOCH 76: Train loss: 1.0553; Dev loss: 1.0612
+INFO:root:EPOCH 77: Train loss: 1.0555; Dev loss: 1.0613
+INFO:root:EPOCH 78: Train loss: 1.0553; Dev loss: 1.0607
+INFO:root:EPOCH 79: Train loss: 1.0552; Dev loss: 1.0609
+INFO:root:EPOCH 80: Train loss: 1.0547; Dev loss: 1.0614
+INFO:root:EPOCH 81: Train loss: 1.0549; Dev loss: 1.0616
+INFO:root:EPOCH 82: Train loss: 1.0548; Dev loss: 1.0612
+INFO:root:EPOCH 83: Train loss: 1.0546; Dev loss: 1.0609
+INFO:root:EPOCH 84: Train loss: 1.0548; Dev loss: 1.0602
+INFO:root:EPOCH 85: Train loss: 1.0549; Dev loss: 1.0604
+INFO:root:EPOCH 86: Train loss: 1.0546; Dev loss: 1.0610
+INFO:root:EPOCH 87: Train loss: 1.0549; Dev loss: 1.0618
+INFO:root:EPOCH 88: Train loss: 1.0545; Dev loss: 1.0620
+INFO:root:EPOCH 89: Train loss: 1.0547; Dev loss: 1.0628
+INFO:root:EPOCH 90: Train loss: 1.0548; Dev loss: 1.0606
+INFO:root:EPOCH 91: Train loss: 1.0549; Dev loss: 1.0622
+INFO:root:EPOCH 92: Train loss: 1.0549; Dev loss: 1.0611
+INFO:root:EPOCH 93: Train loss: 1.0543; Dev loss: 1.0625
+INFO:root:EPOCH 94: Train loss: 1.0545; Dev loss: 1.0634
+INFO:root:EPOCH 95: Train loss: 1.0543; Dev loss: 1.0617
+INFO:root:EPOCH 96: Train loss: 1.0546; Dev loss: 1.0616
+INFO:root:EPOCH 97: Train loss: 1.0541; Dev loss: 1.0604
+INFO:root:EPOCH 98: Train loss: 1.0545; Dev loss: 1.0609
+INFO:root:EPOCH 99: Train loss: 1.0542; Dev loss: 1.0610
+INFO:root:EPOCH 100: Train loss: 1.0541; Dev loss: 1.0620
+INFO:root:EPOCH 101: Train loss: 1.0542; Dev loss: 1.0606
+INFO:root:EPOCH 102: Train loss: 1.0542; Dev loss: 1.0627
+INFO:root:EPOCH 103: Train loss: 1.0541; Dev loss: 1.0627
+INFO:root:EPOCH 104: Train loss: 1.0543; Dev loss: 1.0624
+INFO:root:EPOCH 105: Train loss: 1.0541; Dev loss: 1.0602
+INFO:root:EPOCH 106: Train loss: 1.0538; Dev loss: 1.0606
+INFO:root:EPOCH 107: Train loss: 1.0543; Dev loss: 1.0626
+INFO:root:EPOCH 108: Train loss: 1.0543; Dev loss: 1.0629
+INFO:root:EPOCH 109: Train loss: 1.0546; Dev loss: 1.0619
+INFO:root:EPOCH 110: Train loss: 1.0547; Dev loss: 1.0615
+INFO:root:EPOCH 111: Train loss: 1.0544; Dev loss: 1.0602
+INFO:root:EPOCH 112: Train loss: 1.0546; Dev loss: 1.0623
+INFO:root:EPOCH 113: Train loss: 1.0557; Dev loss: 1.0605
+INFO:root:EPOCH 114: Train loss: 1.0544; Dev loss: 1.0602
+INFO:root:EPOCH 115: Train loss: 1.0538; Dev loss: 1.0593
+INFO:root:EPOCH 116: Train loss: 1.0544; Dev loss: 1.0602
+INFO:root:EPOCH 117: Train loss: 1.0538; Dev loss: 1.0615
+INFO:root:EPOCH 118: Train loss: 1.0540; Dev loss: 1.0620
+INFO:root:EPOCH 119: Train loss: 1.0540; Dev loss: 1.0620
+INFO:root:EPOCH 120: Train loss: 1.0537; Dev loss: 1.0597
+INFO:root:EPOCH 121: Train loss: 1.0533; Dev loss: 1.0596
+INFO:root:EPOCH 122: Train loss: 1.0549; Dev loss: 1.0609
+INFO:root:EPOCH 123: Train loss: 1.0539; Dev loss: 1.0624
+INFO:root:EPOCH 124: Train loss: 1.0544; Dev loss: 1.0598
+INFO:root:EPOCH 125: Train loss: 1.0536; Dev loss: 1.0600
+INFO:root:EPOCH 126: Train loss: 1.0541; Dev loss: 1.0591
+INFO:root:EPOCH 127: Train loss: 1.0553; Dev loss: 1.0612
+INFO:root:EPOCH 128: Train loss: 1.0544; Dev loss: 1.0585
+INFO:root:EPOCH 129: Train loss: 1.0536; Dev loss: 1.0605
+INFO:root:EPOCH 130: Train loss: 1.0546; Dev loss: 1.0601
+INFO:root:EPOCH 131: Train loss: 1.0537; Dev loss: 1.0617
+INFO:root:EPOCH 132: Train loss: 1.0550; Dev loss: 1.0601
+INFO:root:EPOCH 133: Train loss: 1.0536; Dev loss: 1.0592
+INFO:root:EPOCH 134: Train loss: 1.0548; Dev loss: 1.0597
+INFO:root:EPOCH 135: Train loss: 1.0541; Dev loss: 1.0600
+INFO:root:EPOCH 136: Train loss: 1.0543; Dev loss: 1.0589
+INFO:root:EPOCH 137: Train loss: 1.0553; Dev loss: 1.0634
+INFO:root:EPOCH 138: Train loss: 1.0551; Dev loss: 1.0604
+INFO:root:EPOCH 139: Train loss: 1.0540; Dev loss: 1.0591
+INFO:root:EPOCH 140: Train loss: 1.0539; Dev loss: 1.0605
+INFO:root:EPOCH 141: Train loss: 1.0536; Dev loss: 1.0634
+INFO:root:EPOCH 142: Train loss: 1.0547; Dev loss: 1.0611
+INFO:root:EPOCH 143: Train loss: 1.0532; Dev loss: 1.0586
+INFO:root:EPOCH 144: Train loss: 1.0544; Dev loss: 1.0591
+INFO:root:EPOCH 145: Train loss: 1.0540; Dev loss: 1.0592
+INFO:root:EPOCH 146: Train loss: 1.0532; Dev loss: 1.0595
+INFO:root:EPOCH 147: Train loss: 1.0533; Dev loss: 1.0588
+INFO:root:EPOCH 148: Train loss: 1.0533; Dev loss: 1.0586
+INFO:root:EPOCH 149: Train loss: 1.0537; Dev loss: 1.0590
+INFO:root:EPOCH 150: Train loss: 1.0539; Dev loss: 1.0591
+INFO:root:EPOCH 151: Train loss: 1.0547; Dev loss: 1.0627
+INFO:root:EPOCH 152: Train loss: 1.0556; Dev loss: 1.0592
+INFO:root:EPOCH 153: Train loss: 1.0539; Dev loss: 1.0607
+INFO:root:EPOCH 154: Train loss: 1.0566; Dev loss: 1.0595
+INFO:root:EPOCH 155: Train loss: 1.0551; Dev loss: 1.0603
+INFO:root:EPOCH 156: Train loss: 1.0534; Dev loss: 1.0594
+INFO:root:EPOCH 157: Train loss: 1.0528; Dev loss: 1.0620
+INFO:root:EPOCH 158: Train loss: 1.0547; Dev loss: 1.0592
+INFO:root:EPOCH 159: Train loss: 1.0533; Dev loss: 1.0587
+INFO:root:EPOCH 160: Train loss: 1.0530; Dev loss: 1.0597
+INFO:root:EPOCH 161: Train loss: 1.0528; Dev loss: 1.0583
+INFO:root:EPOCH 162: Train loss: 1.0533; Dev loss: 1.0618
+INFO:root:EPOCH 163: Train loss: 1.0545; Dev loss: 1.0599
+INFO:root:EPOCH 164: Train loss: 1.0538; Dev loss: 1.0601
+INFO:root:EPOCH 165: Train loss: 1.0539; Dev loss: 1.0595
+INFO:root:EPOCH 166: Train loss: 1.0533; Dev loss: 1.0598
+INFO:root:EPOCH 167: Train loss: 1.0530; Dev loss: 1.0588
+INFO:root:EPOCH 168: Train loss: 1.0531; Dev loss: 1.0592
+INFO:root:EPOCH 169: Train loss: 1.0532; Dev loss: 1.0591
+INFO:root:EPOCH 170: Train loss: 1.0526; Dev loss: 1.0591
+INFO:root:EPOCH 171: Train loss: 1.0532; Dev loss: 1.0591
+INFO:root:EPOCH 172: Train loss: 1.0526; Dev loss: 1.0614
+INFO:root:EPOCH 173: Train loss: 1.0533; Dev loss: 1.0586
+INFO:root:EPOCH 174: Train loss: 1.0528; Dev loss: 1.0604
+INFO:root:EPOCH 175: Train loss: 1.0537; Dev loss: 1.0605
+INFO:root:EPOCH 176: Train loss: 1.0538; Dev loss: 1.0593
+INFO:root:EPOCH 177: Train loss: 1.0541; Dev loss: 1.0591
+INFO:root:EPOCH 178: Train loss: 1.0543; Dev loss: 1.0599
+INFO:root:EPOCH 179: Train loss: 1.0527; Dev loss: 1.0600
+INFO:root:EPOCH 180: Train loss: 1.0526; Dev loss: 1.0596
+INFO:root:EPOCH 181: Train loss: 1.0528; Dev loss: 1.0602
+INFO:root:EPOCH 182: Train loss: 1.0529; Dev loss: 1.0597
+INFO:root:EPOCH 183: Train loss: 1.0535; Dev loss: 1.0603
+INFO:root:EPOCH 184: Train loss: 1.0533; Dev loss: 1.0590
+INFO:root:EPOCH 185: Train loss: 1.0536; Dev loss: 1.0618
+INFO:root:EPOCH 186: Train loss: 1.0530; Dev loss: 1.0592
+INFO:root:EPOCH 187: Train loss: 1.0530; Dev loss: 1.0613
+INFO:root:EPOCH 188: Train loss: 1.0537; Dev loss: 1.0587
+INFO:root:EPOCH 189: Train loss: 1.0527; Dev loss: 1.0596
+INFO:root:EPOCH 190: Train loss: 1.0558; Dev loss: 1.0604
+INFO:root:EPOCH 191: Train loss: 1.0528; Dev loss: 1.0588
+INFO:root:EPOCH 192: Train loss: 1.0530; Dev loss: 1.0590
+INFO:root:EPOCH 193: Train loss: 1.0529; Dev loss: 1.0624
+INFO:root:EPOCH 194: Train loss: 1.0533; Dev loss: 1.0598
+INFO:root:EPOCH 195: Train loss: 1.0529; Dev loss: 1.0588
+INFO:root:EPOCH 196: Train loss: 1.0524; Dev loss: 1.0594
+INFO:root:EPOCH 197: Train loss: 1.0524; Dev loss: 1.0582
+INFO:root:EPOCH 198: Train loss: 1.0523; Dev loss: 1.0584
+INFO:root:EPOCH 199: Train loss: 1.0525; Dev loss: 1.0592
+INFO:root:EPOCH 200: Train loss: 1.0530; Dev loss: 1.0609
+INFO:root:EPOCH 201: Train loss: 1.0539; Dev loss: 1.0600
+INFO:root:EPOCH 202: Train loss: 1.0544; Dev loss: 1.0589
+INFO:root:EPOCH 203: Train loss: 1.0534; Dev loss: 1.0627
+INFO:root:EPOCH 204: Train loss: 1.0538; Dev loss: 1.0588
+INFO:root:EPOCH 205: Train loss: 1.0543; Dev loss: 1.0582
+INFO:root:EPOCH 206: Train loss: 1.0528; Dev loss: 1.0597
+INFO:root:EPOCH 207: Train loss: 1.0531; Dev loss: 1.0590
+INFO:root:EPOCH 208: Train loss: 1.0532; Dev loss: 1.0609
+INFO:root:EPOCH 209: Train loss: 1.0526; Dev loss: 1.0592
+INFO:root:EPOCH 210: Train loss: 1.0524; Dev loss: 1.0583
+INFO:root:EPOCH 211: Train loss: 1.0527; Dev loss: 1.0588
+INFO:root:EPOCH 212: Train loss: 1.0520; Dev loss: 1.0577
+INFO:root:EPOCH 213: Train loss: 1.0526; Dev loss: 1.0586
+INFO:root:EPOCH 214: Train loss: 1.0523; Dev loss: 1.0592
+INFO:root:EPOCH 215: Train loss: 1.0528; Dev loss: 1.0583
+INFO:root:EPOCH 216: Train loss: 1.0527; Dev loss: 1.0582
+INFO:root:EPOCH 217: Train loss: 1.0527; Dev loss: 1.0592
+INFO:root:EPOCH 218: Train loss: 1.0525; Dev loss: 1.0598
+INFO:root:EPOCH 219: Train loss: 1.0529; Dev loss: 1.0584
+INFO:root:EPOCH 220: Train loss: 1.0530; Dev loss: 1.0596
+INFO:root:EPOCH 221: Train loss: 1.0530; Dev loss: 1.0602
+INFO:root:EPOCH 222: Train loss: 1.0523; Dev loss: 1.0593
+INFO:root:EPOCH 223: Train loss: 1.0526; Dev loss: 1.0662
+INFO:root:EPOCH 224: Train loss: 1.0532; Dev loss: 1.0592
+INFO:root:EPOCH 225: Train loss: 1.0529; Dev loss: 1.0593
+INFO:root:EPOCH 226: Train loss: 1.0544; Dev loss: 1.0597
+INFO:root:EPOCH 227: Train loss: 1.0525; Dev loss: 1.0602
+INFO:root:EPOCH 228: Train loss: 1.0529; Dev loss: 1.0593
+INFO:root:EPOCH 229: Train loss: 1.0527; Dev loss: 1.0594
+INFO:root:EPOCH 230: Train loss: 1.0535; Dev loss: 1.0618
+INFO:root:EPOCH 231: Train loss: 1.0535; Dev loss: 1.0596
+INFO:root:EPOCH 232: Train loss: 1.0528; Dev loss: 1.0591
+INFO:root:EPOCH 233: Train loss: 1.0528; Dev loss: 1.0594
+INFO:root:EPOCH 234: Train loss: 1.0520; Dev loss: 1.0588
+INFO:root:EPOCH 235: Train loss: 1.0521; Dev loss: 1.0588
+INFO:root:EPOCH 236: Train loss: 1.0521; Dev loss: 1.0592
+INFO:root:EPOCH 237: Train loss: 1.0527; Dev loss: 1.0600
+INFO:root:EPOCH 238: Train loss: 1.0524; Dev loss: 1.0590
+INFO:root:EPOCH 239: Train loss: 1.0548; Dev loss: 1.0598
+INFO:root:EPOCH 240: Train loss: 1.0520; Dev loss: 1.0598
+INFO:root:EPOCH 241: Train loss: 1.0526; Dev loss: 1.0595
+INFO:root:EPOCH 242: Train loss: 1.0524; Dev loss: 1.0590
+INFO:root:EPOCH 243: Train loss: 1.0526; Dev loss: 1.0594
+INFO:root:EPOCH 244: Train loss: 1.0538; Dev loss: 1.0593
+INFO:root:EPOCH 245: Train loss: 1.0523; Dev loss: 1.0585
+INFO:root:EPOCH 246: Train loss: 1.0534; Dev loss: 1.0601
+INFO:root:EPOCH 247: Train loss: 1.0539; Dev loss: 1.0668
+INFO:root:EPOCH 248: Train loss: 1.0578; Dev loss: 1.0621
+INFO:root:EPOCH 249: Train loss: 1.0526; Dev loss: 1.0587
+INFO:root:EPOCH 250: Train loss: 1.0520; Dev loss: 1.0593
+INFO:root:EPOCH 251: Train loss: 1.0520; Dev loss: 1.0583
+INFO:root:EPOCH 252: Train loss: 1.0526; Dev loss: 1.0591
+INFO:root:EPOCH 253: Train loss: 1.0534; Dev loss: 1.0600
+INFO:root:EPOCH 254: Train loss: 1.0529; Dev loss: 1.0586
+INFO:root:EPOCH 255: Train loss: 1.0525; Dev loss: 1.0595
+INFO:root:EPOCH 256: Train loss: 1.0537; Dev loss: 1.0596
+INFO:root:EPOCH 257: Train loss: 1.0520; Dev loss: 1.0588
+INFO:root:EPOCH 258: Train loss: 1.0524; Dev loss: 1.0585
+INFO:root:EPOCH 259: Train loss: 1.0518; Dev loss: 1.0595
+INFO:root:EPOCH 260: Train loss: 1.0542; Dev loss: 1.0595
+INFO:root:EPOCH 261: Train loss: 1.0519; Dev loss: 1.0596
+INFO:root:EPOCH 262: Train loss: 1.0531; Dev loss: 1.0588
+INFO:root:EPOCH 263: Train loss: 1.0528; Dev loss: 1.0587
+INFO:root:EPOCH 264: Train loss: 1.0520; Dev loss: 1.0580
+INFO:root:EPOCH 265: Train loss: 1.0517; Dev loss: 1.0585
+INFO:root:EPOCH 266: Train loss: 1.0517; Dev loss: 1.0583
+INFO:root:EPOCH 267: Train loss: 1.0528; Dev loss: 1.0582
+INFO:root:EPOCH 268: Train loss: 1.0516; Dev loss: 1.0590
+INFO:root:EPOCH 269: Train loss: 1.0517; Dev loss: 1.0583
+INFO:root:EPOCH 270: Train loss: 1.0522; Dev loss: 1.0587
+INFO:root:EPOCH 271: Train loss: 1.0519; Dev loss: 1.0586
+INFO:root:EPOCH 272: Train loss: 1.0526; Dev loss: 1.0582
+INFO:root:EPOCH 273: Train loss: 1.0516; Dev loss: 1.0583
+INFO:root:EPOCH 274: Train loss: 1.0524; Dev loss: 1.0610
+INFO:root:EPOCH 275: Train loss: 1.0521; Dev loss: 1.0606
+INFO:root:EPOCH 276: Train loss: 1.0523; Dev loss: 1.0582
+INFO:root:EPOCH 277: Train loss: 1.0524; Dev loss: 1.0586
+INFO:root:EPOCH 278: Train loss: 1.0518; Dev loss: 1.0587
+INFO:root:EPOCH 279: Train loss: 1.0519; Dev loss: 1.0580
+INFO:root:EPOCH 280: Train loss: 1.0518; Dev loss: 1.0590
+INFO:root:EPOCH 281: Train loss: 1.0534; Dev loss: 1.0580
+INFO:root:EPOCH 282: Train loss: 1.0517; Dev loss: 1.0586
+INFO:root:EPOCH 283: Train loss: 1.0521; Dev loss: 1.0581
+INFO:root:EPOCH 284: Train loss: 1.0525; Dev loss: 1.0586
+INFO:root:EPOCH 285: Train loss: 1.0525; Dev loss: 1.0584
+INFO:root:EPOCH 286: Train loss: 1.0538; Dev loss: 1.0653
+INFO:root:EPOCH 287: Train loss: 1.0598; Dev loss: 1.0654
+INFO:root:EPOCH 288: Train loss: 1.0561; Dev loss: 1.0590
+INFO:root:EPOCH 289: Train loss: 1.0524; Dev loss: 1.0593
+INFO:root:EPOCH 290: Train loss: 1.0527; Dev loss: 1.0575
+INFO:root:EPOCH 291: Train loss: 1.0519; Dev loss: 1.0580
+INFO:root:EPOCH 292: Train loss: 1.0520; Dev loss: 1.0585
+INFO:root:EPOCH 293: Train loss: 1.0523; Dev loss: 1.0584
+INFO:root:EPOCH 294: Train loss: 1.0518; Dev loss: 1.0579
+INFO:root:EPOCH 295: Train loss: 1.0521; Dev loss: 1.0590
+INFO:root:EPOCH 296: Train loss: 1.0520; Dev loss: 1.0586
+INFO:root:EPOCH 297: Train loss: 1.0522; Dev loss: 1.0589
+INFO:root:EPOCH 298: Train loss: 1.0525; Dev loss: 1.0609
+INFO:root:EPOCH 299: Train loss: 1.0523; Dev loss: 1.0579
+INFO:root:EPOCH 300: Train loss: 1.0520; Dev loss: 1.0583
+INFO:root:'train' finished: 2431.4609s
+INFO:root:TEST: loss: 1.6680; accuracy: 0.68
+INFO:root:Label perforamce:
+INFO:root:	single: 2724 of 4022 correct; 67.73%
+INFO:root:	field_out: 3075 of 4002 correct; 76.84%
+INFO:root:	home_run: 1992 of 3935 correct; 50.62%
+INFO:root:	non_hr_xbh: 2185 of 2632 correct; 83.02%
+INFO:root:'main' finished: 2437.7187s
