@@ -82,20 +82,10 @@ class Data:
         return data
 
     def clean(self):
-        drop = ['sac_fly_double_play', 'batter_interference',
-            'sac_bunt_double_play', 'hit_by_pitch', 'interf_def']
-        field_out = ['fielders_choice', 'triple_play','sac_bunt',
-            'fielders_choice_out', 'double_play', 'field_error',
-            'force_out', 'grounded_into_double_play', 'sac_fly']
-        strikeout = ['strikeout_double_play']
-        walk = ['intent_walk']
-
-        self.data = self.data.loc[~self.data.result.isin(drop)]
-        self.data.loc[self.data.result.isin(field_out), ['result']] = 'field_out'
-        self.data.loc[self.data.result.isin(strikeout), ['result']] = 'strikeout'
-        self.data.loc[self.data.result.isin(walk), ['result']] = 'walk'
+        self._drop_results()
+        self._move_results()
+        self._redistribute_results()
         self.data = self.data.fillna(0.)
-        self.data = self.data.loc[~self.data.result.isin(('strikeout','walk'))]
 
     def split(self, split: Tuple[float, float, float]):
         self.splits = split
@@ -204,3 +194,27 @@ class Data:
         test_dl = DataLoader(TensorDataset(tensors['X_test'], tensors['Y_test']))
 
         return {'train': train_dl, 'dev': dev_dl, 'test': test_dl}
+
+    def _drop_results(self):
+        drop = ['sac_fly_double_play', 'batter_interference',
+            'sac_bunt_double_play', 'hit_by_pitch', 'interf_def',
+            'strikeout_double_play', 'intent_walk', 'strikeout',
+            'walk']
+        self.data = self.data.loc[~self.data.result.isin(drop)]
+
+    def _move_results(self):
+        field_out = ['fielders_choice', 'triple_play','sac_bunt',
+            'fielders_choice_out', 'double_play', 'field_error',
+            'force_out', 'grounded_into_double_play', 'sac_fly']
+
+        self.data.loc[self.data.result.isin(field_out), ['result']] = 'field_out'
+
+    def _redistribute_results(self):
+        row_ceil = 40_000
+        field_outs = self.data.loc[self.data.result.eq('field_out'), 'result'].count()
+        reduced_field_outs = field_outs - row_ceil
+        singles = self.data.loc[self.data.result.eq('single'), 'result'].count()
+        reduced_singles = singles - row_ceil
+
+        self.data = self.data.drop(self.data[self.data['result'].eq('field_out')].sample(reduced_field_outs).index)
+        self.data = self.data.drop(self.data[self.data['result'].eq('single')].sample(reduced_singles).index)
