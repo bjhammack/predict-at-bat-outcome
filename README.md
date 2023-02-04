@@ -97,7 +97,7 @@ Because of the heavy skewness towards field outs and singles, in the original da
     - This reduced the total sample size from ~500,000 rows to ~146,000.
 
 #### Classes
-Remained the same five classes as [v1.0](#v10)
+Remained the same five classes as [v1.0](#classes)
 
 #### Distribution
 With the data redistributed, as outlined above, the data is much more inline with acceptable distribution expections. Field outs and singles make up 27% of the data each, while doubles are 25% and home runs 18%. Triples are still the noticeable outlier at 2.5%, but that will be addressed after the impact of this redistribution can be measured.
@@ -163,3 +163,65 @@ First is the question of triples. There are simply so few of them and they are v
 More data is going to be a time-intensive task and, even though it might be the option that could show the most improvement (since triples are heavily tied to player speed), the time required to get the data might not be worth improving the least common hit. Synthetic samples *might* show some improvement, but again, they're very similar to doubles, so this might be only a very small improvement or just confuse doubles. Removing them is not an unreasonable option and it would eliminate any issue they might have, but combining them to doubles and changing the label to something akin to "non_hr_xbh", might be the best option for the model long term and prevent us from losing more samples.
 
 The other key insight this version gives us is that we need to increase learning speed, but to prevent oscillation around the minima, we should implement momentum or something similar in tandem with increasing learning rate (Adam already being used may be enough, but that will have to be tested).
+
+
+## v2.1
+This iteration will measure the effects of combining doubles and triples and increasing training to 300 epochs.
+
+### Data
+
+#### Changes
+As mentioned in the [v2.0 evaluation](#evaluation-1), doubles and triples will be combined into `non_hr_xbh`. No other changes will be made to the data, in order to measure the effects.
+
+- The same initial cleaning steps were taken as in [v1.0](#v10) and [v2.0](#v20)
+- Results equal to `triple` were renamed to `double`, then `double` was renamed to `non_hr_xbh`.
+
+#### Classes
+With triples and doubles combined, now there are only 4 labels.
+- field_out
+- single
+- non_hr_xbh
+- home_run
+
+#### Distribution
+Non-HR XBHs now make up 27% of the data, which makes that label equal in size to field outs and singles, with home runs still at 18%.
+
+#### Split
+The same as [v2.0](#v20) 80/10/10.
+
+### Neural Network
+| Layer | Input Nodes | Output Nodes | Function |
+|:-----:|:-----------:|:------------:|----------|
+| 1     | 3           | 32           | ReLU     |
+| 2     | 32          | 64           | ReLU     |
+| 3     | 64          | 128          | ReLU     |
+| 4     | 128         | 128          | ReLU     |
+| 5     | 128         | 64           | ReLU     |
+| 6     | 64          | 32           | ReLU     |
+| 7     | 32          | 5            | Softmax  |
+
+### Hyperparameters
+| H-param       | Value              |
+|---------------|--------------------|
+| Split         | 80/10/10           |
+| Loss          | Cross Entropy Loss |
+| Optimizer     | Adam               |
+| Learning Rate | 0.001              |
+| Epochs        | 300                |
+| Batch Sizes   | 1,000              |
+
+### Training
+After training for 300 epochs, 
+
+| Loss | Accuracy |
+|:----:|:--------:|
+| ![training_loss](assets/training_graphs/v2.1_train_loss.png) | ![training_acc](assets/training_graphs/v2.1_train_acc.png) |
+| ![dev_loss](assets/training_graphs/v2.1_dev_loss.png) | ![dev_acc](assets/training_graphs/v2.1_dev_acc.png) |
+
+#### Final Evaluation on the test set
+| Loss   | Accuracy |
+|:------:|:--------:|
+| 0. | 0.     |
+
+### Evaluation
+

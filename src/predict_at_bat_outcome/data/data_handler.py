@@ -151,9 +151,9 @@ class Data:
                 # 'walk': 2,
                 'field_out': 0,
                 'single': 1,
-                'double': 2,
+                'non_hr_xbh': 2,
                 'home_run': 3,
-                'triple': 4,
+                # 'triple': 4,
             }
             df = df.replace(map)
             return df
@@ -206,8 +206,10 @@ class Data:
         field_out = ['fielders_choice', 'triple_play','sac_bunt',
             'fielders_choice_out', 'double_play', 'field_error',
             'force_out', 'grounded_into_double_play', 'sac_fly']
+        non_hr_xbh = ['double', 'triple']
 
         self.data.loc[self.data.result.isin(field_out), ['result']] = 'field_out'
+        self.data.loc[self.data.result.isin(non_hr_xbh), ['result']] = 'non_hr_xbh'
 
     def _redistribute_results(self):
         row_ceil = 40_000
