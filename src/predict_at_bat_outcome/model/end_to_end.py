@@ -68,7 +68,7 @@ def get_hyperparameters():
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
         'scheduler': OneCycleLR,
-        'lr': 1e-3,
+        'lr': 3e-3,
         'epochs': 100,
         'batch_size': 1000,
         'weight_decay': 1e-4,
@@ -77,7 +77,7 @@ def get_hyperparameters():
 
 
 @timer
-def main(data_source, save_path, checkpoint_path):
+def main(data_source, save_path, checkpoint_path, version):
     logging.info(f'Model will be saved at: \'{save_path}\'')
     logging.info(f'Checkpoints will be saved at: \'{checkpoint_path}\'')
 
@@ -99,7 +99,7 @@ def main(data_source, save_path, checkpoint_path):
         else:
             logging.info(f'\t{k}: {v}')
 
-    writer = SummaryWriter()
+    writer = SummaryWriter(comment=f'_{version}')
     model = train(dls, hparams, writer)
     eval = evaluate(model, hparams['loss_func'], dls['test'])
     writer.close()
@@ -118,7 +118,7 @@ def main(data_source, save_path, checkpoint_path):
 
 
 if __name__ == '__main__':
-    vers = 'v3.2'
+    vers = 'v3.3'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'
@@ -130,4 +130,5 @@ if __name__ == '__main__':
         data_source = 'F:/baseball/active_player_abs/',
         save_path = set_dated_file(save_loc, pre, '.model'),
         checkpoint_path = set_dated_file(check_loc, pre, check_suf),
+        version=vers,
         )

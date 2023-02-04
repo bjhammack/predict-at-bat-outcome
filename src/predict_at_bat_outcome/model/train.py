@@ -30,7 +30,7 @@ def train(dls: Dict[str, DataLoader], hparams: Dict[str, Any], writer: SummaryWr
         max_lr=hparams['max_lr'],
         steps_per_epoch = int(len(dls['train'])),
         epochs=hparams['epochs'],
-        anneal_strategy='cos',
+        anneal_strategy='linear',
         )
 
     epochs = hparams['epochs']
