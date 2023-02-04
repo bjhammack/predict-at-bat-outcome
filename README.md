@@ -214,6 +214,7 @@ The same as [v2.0](#v20) 80/10/10.
 ### Training
 After training for 300 epochs, the model showed measured improvements over v2.0, albeit on a small scale. The majority of improvements happened early, making the difference of adding 200 additional epochs negligible.
 
+(pink=v2.1; blue=v2.0)
 | Loss | Accuracy |
 |:----:|:--------:|
 | ![training_loss](assets/training_graphs/v2.1_train_loss.png) | ![training_acc](assets/training_graphs/v2.1_train_acc.png) |
