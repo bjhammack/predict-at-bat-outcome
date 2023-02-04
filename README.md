@@ -126,10 +126,10 @@ With the loss of a fair bit of data, the split was updated to be more accomodati
 | Optimizer     | Adam               |
 | Learning Rate | 0.001              |
 | Epochs        | 100                |
-| Batch Sizes   | 3,000              |
+| Batch Sizes   | 1,000              |
 
 ### Training
-After training for 100 epochs, ...
+After training for 100 epochs, the model showed a much more expected progressions in both train and dev loss/accuracy. The margins are very small for the following, but training loss/acc both surpassed v1.0, but dev did not.
 
 | Loss | Accuracy |
 |:----:|:--------:|
@@ -139,7 +139,27 @@ After training for 100 epochs, ...
 #### Final Evaluation on the test set
 | Loss   | Accuracy |
 |:------:|:--------:|
-| 0. | 0.     |
+| 0.9048 | 0.67     |
 
 ### Evaluation
+The results seem nearly identical at first glance (the losses are identical and the accuracies only have a 0.01 difference), but this model was much more encouraging to see than v1.0.
 
+The first positive sign are the loss and accuracy graphs shown above. They indicate that the model was actually learning each epoch and may have continued learning if training was extended. That being said, learning was slow, which is something worth looking into in the future.
+
+The second piece of good news was the labeling of the test dataset. Rather than 100% of predictions being field outs, we have the below distribution:
+
+| Label     | Total Samples | Accuracy |
+|-----------|:-------------:|:--------:|
+| field_out | 3,988         | 71.61%   |
+| single    | 4,013         | 69.75%   |
+| double    | 3,628         | 49.72%   |
+| home_run  | 2,618         | 89.08%   |
+| triple    | 344           | 0.0%     |
+
+This reaffirms the information gotten from the loss graphs, that the model was actually learning to label. It also provides insight on next steps.
+
+First is the question of triples. There are simply so few of them and they are very similar to doubles, that in their current state it will be very hard to get the model to learn them. It's impractical reduce the rest of the results down to the triple level, like done with11 field outs and singles, which leaves: synthetic samples, combining them with another label, removing them, or more data.
+
+More data is going to be a time-intensive task and, even though it might be the option that could show the most improvement (since triples are heavily tied to player speed), the time required to get the data might not be worth improving the least common hit. Synthetic samples *might* show some improvement, but again, they're very similar to doubles, so this might be only a very small improvement or just confuse doubles. Removing them is not an unreasonable option and it would eliminate any issue they might have, but combining them to doubles and changing the label to something akin to "non_hr_xbh", might be the best option for the model long term and prevent us from losing more samples.
+
+The other key insight this version gives us is that we need to increase learning speed, but to prevent oscillation around the minima, we should implement momentum or something similar in tandem with increasing learning rate (Adam already being used may be enough, but that will have to be tested).
