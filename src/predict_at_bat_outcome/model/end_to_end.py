@@ -56,19 +56,19 @@ def get_hidden_layers():
         nn.ReLU(),
         nn.Linear(64, 32),
         nn.ReLU(),
-        nn.Linear(32, 5),
+        nn.Linear(32, 4),
     ]
 
 
 def get_hyperparameters():
     return {
-        'split': (0.9, 0.05, 0.05),
+        'split': (0.8, 0.1, 0.1),
         'hidden_layers': get_hidden_layers(),
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
         'lr': 0.001,
-        'epochs': 100,
-        'batch_size': 3000,
+        'epochs': 300,
+        'batch_size': 1000,
     }
 
 
@@ -114,7 +114,7 @@ def main(data_source, save_path, checkpoint_path):
 
 
 if __name__ == '__main__':
-    vers = 'v1.0'
+    vers = 'v2.1'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'
