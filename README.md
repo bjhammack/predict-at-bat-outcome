@@ -7,6 +7,7 @@ Baseball has always been a cutting edge sport in regards to analytics. More and 
 2. [Models](#models)
     1. [v1.0](#v10)
     2. [v2.0](#v20)
+    3. [v2.1](#v21)
 
 
 # Data
@@ -211,7 +212,7 @@ The same as [v2.0](#v20) 80/10/10.
 | Batch Sizes   | 1,000              |
 
 ### Training
-After training for 300 epochs, 
+After training for 300 epochs, the model showed measured improvements over v2.0, albeit on a small scale. The majority of improvements happened early, making the difference of adding 200 additional epochs negligible.
 
 | Loss | Accuracy |
 |:----:|:--------:|
@@ -221,7 +222,36 @@ After training for 300 epochs,
 #### Final Evaluation on the test set
 | Loss   | Accuracy |
 |:------:|:--------:|
-| 0. | 0.     |
+| 1.6680 | 0.68     |
 
 ### Evaluation
+This minor update proved to be another step in the right direction. As seen above, the train/dev loss/acc all markedly improved over v2.0. That being said, there are some takeaways that require attention.
 
+1. The test loss was 1.6680, higher than any other version and 0.5 greater than the train and dev losses.
+
+This could indicate potential bias, but also because the dev loss was inline with the training results and tests accuracy was consistent with train, there's a possibility this was an abberation and training again might produce more acceptable results.
+
+2. The improvements, while good, are still marginal.
+
+This isn't wholly unsurprising, because the only change was combining doubles and triples. At most (because triples made up 2.5% of the labels), accuracy could improve by 0.025, so the 0.01... change seen is in line with that expectation.
+
+This being said, marginal improvements shouldn't be the goal. It's time to focus more are larger gains, which may mean next iteration will be learning rate focused.
+
+3. Non-HR XBHs still face a labeling problem.
+
+Looking at the below test accuracies, non-HR XBHs are the worst performer at ~50% accurate.
+
+| Label      | Total Samples | Accuracy |
+|------------|:-------------:|:--------:|
+| field_out  | 4,002         | 76.84%   |
+| single     | 4,022         | 67.73%   |
+| non_hr_xbh | 3,935         | 50.62%   |
+| home_run   | 2,632         | 83.02%   |
+
+Improving that number should be a priority, since home runs are in a very strong spot and singles/field outs are expected to have a harder time at telling each other apart. This means following iterations will need to dive deeper into which non-HR XBHs are having the most issues and why.
+
+4. Moving forward, while looking for areas of improvement, the possibility of already being near the ceiling needs to be entertained.
+
+While not a scenario anyone would want, the possibility that 65-70% accuracy being the best this model will ever be able to achieve with this data is real. With only three features (pitch velo being one I'm not confident actually helps the model), lack of robust features may be the biggest blocker this model faces. Player speed, horizontal launch angle, park, opposing defense, etc. are all potentially helpful features for this model that will either take a lot of time to gather or are simply not available to the public. Trying to improve the model in other, less time-intensive ways is the correct approach for now, but it is smart to continue assessing the situation so that efforts are not in vain.
+
+The next version will focus most on improving #2, #3, or both as those seem like the biggest potential improvement areas right now.
