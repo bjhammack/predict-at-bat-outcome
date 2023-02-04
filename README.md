@@ -38,15 +38,16 @@ A known issue going into this iteration is that the distribution of the data is 
 The data was split 90/5/5 between the train, dev, and test sets.
 
 ### Neural Network
-Layers (input, output, activation function):
-1. Linear(3, 32, ReLU)
-2. Linear(32, 64, ReLU)
-3. Linear(64, 128, ReLU)
-4. Linear(128, 128, ReLU)
-5. Linear(128, 64, ReLU)
-6. Linear(64, 32, ReLU)
-7. Linear(32, 5, ReLU)
-8. Softmax(5, 5, Softmax)
+| Layer | Input Nodes | Output Nodes | Function |
+|:-----:|:-----------:|:------------:|----------|
+| 1     | 3           | 32           | ReLU     |
+| 2     | 32          | 64           | ReLU     |
+| 3     | 64          | 128          | ReLU     |
+| 4     | 128         | 128          | ReLU     |
+| 5     | 128         | 64           | ReLU     |
+| 6     | 64          | 32           | ReLU     |
+| 7     | 32          | 5            | ReLU     |
+| 8     | 5           | 5            | Softmax  |
 
 ### Hyperparameters
 | H-param       | Value              |
@@ -63,8 +64,8 @@ After training for 100 epochs, the training loss flattened out almost immediatle
 
 | Loss | Accuracy |
 |:----:|:--------:|
-| ![training_loss](assets/model_graphs/v1.0_train_loss.png) | ![training_acc](assets/model_graphs/v1.0_train_acc.png) |
-| ![dev_loss](assets/model_graphs/v1.0_dev_loss.png) | ![dev_acc](assets/model_graphs/v1.0_dev_acc.png) |
+| ![training_loss](assets/training_graphs/v1.0_train_loss.png) | ![training_acc](assets/training_graphs/v1.0_train_acc.png) |
+| ![dev_loss](assets/training_graphs/v1.0_dev_loss.png) | ![dev_acc](assets/training_graphs/v1.0_dev_acc.png) |
 
 #### Final Evaluation on the test set
 | Loss   | Accuracy |
@@ -72,7 +73,7 @@ After training for 100 epochs, the training loss flattened out almost immediatle
 | 0.9048 | 0.66     |
 
 ### Evaluation
-It is imeiately apparent that there is some fundamental flaw with this iteration and only a little more digging reveals the truth. For almost every row of data, train, dev, or test, the model predicted `field_out`. Unsurprisingly, this gave the model ~0.66 accuracy for each dataset, since field outs make up two thirds of the data.
+It is immediately apparent that there is some fundamental flaw with this iteration and only a little more digging reveals the truth. For almost every row of data, train, dev, or test, the model predicted `field_out`. Unsurprisingly, this gave the model ~0.66 accuracy for each dataset, since field outs make up two thirds of the data.
 
 While there are other obvious areas to improve the model, it seems data distribution is by far the most pressing issue, as it will measurably impact every future model if not dealt with first. It also eschews the need to continue evaluating this model by other means (precision, recall, etc.), because there is not point overwhelming the second iteration with "to-do's".
 
