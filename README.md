@@ -60,7 +60,7 @@ The data was split 90/5/5 between the train, dev, and test sets.
 | Split         | 90/5/5             |
 | Loss          | Cross Entropy Loss |
 | Optimizer     | Adam               |
-| Learning Rate | 0.001              |
+| Learning Rate | 1e-3              |
 | Epochs        | 100                |
 | Batch Sizes   | 3,000              |
 
@@ -125,7 +125,7 @@ With the loss of a fair bit of data, the split was updated to be more accomodati
 | Split         | 80/10/10           |
 | Loss          | Cross Entropy Loss |
 | Optimizer     | Adam               |
-| Learning Rate | 0.001              |
+| Learning Rate | 1e-3              |
 | Epochs        | 100                |
 | Batch Sizes   | 1,000              |
 
@@ -207,7 +207,7 @@ The same as [v2.0](#v20) 80/10/10.
 | Split         | 80/10/10           |
 | Loss          | Cross Entropy Loss |
 | Optimizer     | Adam               |
-| Learning Rate | 0.001              |
+| Learning Rate | 1e-3              |
 | Epochs        | 300                |
 | Batch Sizes   | 1,000              |
 
@@ -256,3 +256,65 @@ Improving that number should be a priority, since home runs are in a very strong
 While not a scenario anyone would want, the possibility that 65-70% accuracy being the best this model will ever be able to achieve with this data is real. With only three features (pitch velo being one I'm not confident actually helps the model), lack of robust features may be the biggest blocker this model faces. Player speed, horizontal launch angle, park, opposing defense, etc. are all potentially helpful features for this model that will either take a lot of time to gather or are simply not available to the public. Trying to improve the model in other, less time-intensive ways is the correct approach for now, but it is smart to continue assessing the situation so that efforts are not in vain.
 
 The next version will focus most on improving #2, #3, or both as those seem like the biggest potential improvement areas right now.
+
+
+## v3.X
+This iteration focuses on optimizing hyperparameters and model infrastructure.
+
+### Data
+
+#### Changes
+Input data will remain the same as it was in [v2.1](#changes-2).
+
+#### Classes
+Remains the same as [v2.1](#classes-2).
+
+#### Distribution
+Remains the same as [v2.1](#distribution-2).
+
+#### Split
+The same as [v2.1](#split-2).
+
+### Neural Network
+| Layer | Input Nodes | Output Nodes | Function |
+|:-----:|:-----------:|:------------:|----------|
+| 1     | 3           | 32           | ReLU     |
+| 2     | 32          | 64           | ReLU     |
+| 3     | 64          | 128          | ReLU     |
+| 4     | 128         | 128          | ReLU     |
+| 5     | 128         | 64           | ReLU     |
+| 6     | 64          | 32           | ReLU     |
+| 7     | 32          | 5            | Softmax  |
+
+### Hyperparameters
+| H-param       | Value              |
+|---------------|--------------------|
+| Split         | 80/10/10           |
+| Loss          | Cross Entropy Loss |
+| Optimizer     | Adam               |
+| Learning Rate | 5e-3               |
+| Epochs        | 150                |
+| Batch Sizes   | 1,000              |
+| Weight Decay  | 1e-4
+
+### Training
+After training for 150 epochs, the model showed measured improvements over v2.0, albeit on a small scale. The majority of improvements happened early, making the difference of adding 200 additional epochs negligible.
+
+| Loss | Accuracy |
+|:----:|:--------:|
+| ![training_loss](assets/training_graphs/v3.X_train_loss.png) | ![training_acc](assets/training_graphs/v3.X_train_acc.png) |
+| ![dev_loss](assets/training_graphs/v3.X_dev_loss.png) | ![dev_acc](assets/training_graphs/v3.X_dev_acc.png) |
+
+#### Final Evaluation on the test set
+| Loss   | Accuracy |
+|:------:|:--------:|
+| 1. | 0.     |
+
+### Evaluation
+
+| Label      | Total Samples | Accuracy |
+|------------|:-------------:|:--------:|
+| field_out  | 4,002         | 0.0%   |
+| single     | 4,022         | 0.0%   |
+| non_hr_xbh | 3,935         | 0.0%   |
+| home_run   | 2,632         | 0.0%   |

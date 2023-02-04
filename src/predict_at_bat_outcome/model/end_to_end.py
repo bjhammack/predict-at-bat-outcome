@@ -66,9 +66,10 @@ def get_hyperparameters():
         'hidden_layers': get_hidden_layers(),
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
-        'lr': 0.001,
-        'epochs': 300,
+        'lr': 5e-3,
+        'epochs': 100,
         'batch_size': 1000,
+        'weight_decay': 1e-4,
     }
 
 
@@ -114,7 +115,7 @@ def main(data_source, save_path, checkpoint_path):
 
 
 if __name__ == '__main__':
-    vers = 'v2.1'
+    vers = 'v3.1'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'

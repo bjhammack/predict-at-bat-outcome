@@ -20,7 +20,11 @@ def train(dls: Dict[str, DataLoader], hparams: Dict[str, Any], writer: SummaryWr
     writer.add_graph(model, input)
 
     loss_func = hparams['loss_func']
-    optimizer = hparams['optimizer'](model.parameters(), lr=hparams['lr'])
+    optimizer = hparams['optimizer'](
+        model.parameters(),
+        lr=hparams['lr'],
+        weight_decay=hparams['weight_decay']
+        )
 
     epochs = hparams['epochs']
     best_vloss = 1_000_000
