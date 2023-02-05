@@ -8,6 +8,7 @@ Baseball has always been a cutting edge sport in regards to analytics. More and 
     1. [v1.0](#v10)
     2. [v2.0](#v20)
     3. [v2.1](#v21)
+    4. [v3.6](#v36)
 
 
 # Data
