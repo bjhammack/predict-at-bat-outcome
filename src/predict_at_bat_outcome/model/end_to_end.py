@@ -51,12 +51,12 @@ def get_hidden_layers():
         nn.ReLU(),
         nn.Linear(32, 64),
         nn.ReLU(),
-        nn.Linear(64, 128),
-        nn.ReLU(),
-        nn.Linear(128, 128),
-        nn.ReLU(),
-        nn.Linear(128, 64),
-        nn.ReLU(),
+        # nn.Linear(64, 128),
+        # nn.ReLU(),
+        # nn.Linear(128, 128),
+        # nn.ReLU(),
+        # nn.Linear(128, 64),
+        # nn.ReLU(),
         nn.Linear(64, 32),
         nn.ReLU(),
         nn.Linear(32, 4),
@@ -70,8 +70,8 @@ def get_hyperparameters():
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
         'scheduler': OneCycleLR,
-        'lr': 5e-3,
-        'epochs': 10,
+        'lr': 3e-3,
+        'epochs': 100,
         'batch_size': 1000,
         'weight_decay': 1e-4,
         'max_lr': 1e-2,
@@ -83,7 +83,7 @@ def main(data_source, save_path, checkpoint_path, version):
     logging.info(f'Model will be saved at: \'{save_path}\'')
     logging.info(f'Checkpoints will be saved at: \'{checkpoint_path}\'')
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = 'cpu' # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Device: {device}')
 
     hparams = get_hyperparameters()
@@ -123,7 +123,7 @@ def main(data_source, save_path, checkpoint_path, version):
 
 
 if __name__ == '__main__':
-    vers = 'v3.X'
+    vers = 'v3.6'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'

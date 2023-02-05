@@ -71,7 +71,7 @@ def train(
             )
         if vloss < best_vloss:
             best_vloss = vloss
-        if epoch % 5 == 0:
+        if epoch % 25 == 0:
             check_dict = {
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
