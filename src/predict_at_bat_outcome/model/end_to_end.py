@@ -3,6 +3,7 @@ if '..' not in sys.path:
     sys.path.insert(0, '..')
     sys.path.insert(0, '.')
 import logging
+import torch
 from torch import nn
 from torch.optim import Adam
 from torch.optim.lr_scheduler import OneCycleLR
@@ -20,6 +21,7 @@ def get_data(
         source: str,
         split: Tuple[float],
         batch: int,
+        device,
         ) -> Tuple[Dict[str, DataLoader], Tuple[str]]:
     atbats = Data(source)
 
@@ -27,7 +29,7 @@ def get_data(
 
     atbats.clean()
     atbats.shuffle(seed=1)
-    classes = tuple(atbats.data.result.unique())
+    classes = atbats.get_labels()
     atbats.split(split)
     xy_dict = atbats.create_XY(
         x=['exit_velocity', 'launch_angle', 'pitch_velocity'],
@@ -38,7 +40,7 @@ def get_data(
 
     logging.info(f'Data normalization mean: {atbats.norm_mean}; std: {atbats.norm_std}')
 
-    dls = atbats.pytorch_prep(xy_dict, batch)
+    dls = atbats.pytorch_prep(xy_dict, batch, device)
     
     return dls, classes
 
@@ -68,8 +70,8 @@ def get_hyperparameters():
         'loss_func': nn.CrossEntropyLoss(),
         'optimizer': Adam,
         'scheduler': OneCycleLR,
-        'lr': 3e-3,
-        'epochs': 100,
+        'lr': 5e-3,
+        'epochs': 10,
         'batch_size': 1000,
         'weight_decay': 1e-4,
         'max_lr': 1e-2,
@@ -81,8 +83,11 @@ def main(data_source, save_path, checkpoint_path, version):
     logging.info(f'Model will be saved at: \'{save_path}\'')
     logging.info(f'Checkpoints will be saved at: \'{checkpoint_path}\'')
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    logging.info(f'Device: {device}')
+
     hparams = get_hyperparameters()
-    dls, classes = get_data(data_source, hparams['split'], hparams['batch_size'])
+    dls, classes = get_data(data_source, hparams['split'], hparams['batch_size'], device)
 
     for dl in ('train', 'dev', 'test'):
         if dl == 'train':
@@ -100,7 +105,7 @@ def main(data_source, save_path, checkpoint_path, version):
             logging.info(f'\t{k}: {v}')
 
     writer = SummaryWriter(comment=f'_{version}')
-    model = train(dls, hparams, writer)
+    model = train(dls, hparams, writer, save_path, checkpoint_path, device)
     eval = evaluate(model, hparams['loss_func'], dls['test'])
     writer.close()
 
@@ -118,17 +123,17 @@ def main(data_source, save_path, checkpoint_path, version):
 
 
 if __name__ == '__main__':
-    vers = 'v3.3'
+    vers = 'v3.X'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'
-    check_loc = 'training_checkpoints'
-    check_suf = '_<EPOCH>.model'
+    check_loc = 'checkpoints'
+    check_suf = '_<EPOCH>.pt'
 
     logging.basicConfig(filename=set_dated_file(log_loc, pre, '.log'), level=logging.INFO)
     main(
         data_source = 'F:/baseball/active_player_abs/',
-        save_path = set_dated_file(save_loc, pre, '.model'),
+        save_path = set_dated_file(save_loc, pre, '.pt'),
         checkpoint_path = set_dated_file(check_loc, pre, check_suf),
         version=vers,
         )
