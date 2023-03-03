@@ -23,7 +23,8 @@ class Data:
     '''
     def __init__(
             self,
-            source: Optional[str] = None,
+            sources: Optional[Union[str, List[str]]] = None,
+            on: Optional[Union[str, List[str]]] = None,
             data: Optional[pd.DataFrame] = None
             ):
         '''
@@ -33,14 +34,27 @@ class Data:
         source -- string; directory or CSV where raw data is stored.
         data -- pandas DataFrame; pre-collected data.
         '''
-        self.data = self.train = self.dev = self.test = self.splits = self.source = self.norm_mean = self.norm_std = None  # noqa: E501
+        self.data = self.train = self.dev = self.test = self.splits = self.sources = self.norm_mean = self.norm_std = None  # noqa: E501
 
         if data:
             self.data = data
-            self.source = 'Pre-collected'
-        elif source and not data:
-            self.data = self.collect_data(source)
-            self.source = source
+            self.sources = ['Pre-collected',]
+        elif sources and not data:
+            if type(sources) is str:
+                sources = [sources,]
+            self.data = self.collect_data(sources[0])
+            self.data['season'] = pd.to_datetime(self.data['game_date']).dt.year  # needs to be refactored
+            self.sources = [sources[0],]
+            if len(sources) > 1:
+                sources_ons = list(zip(sources[1:], [on]*len(sources[1:])))
+                for source, on in sources_ons:
+                    self.sources.append(source)
+                    next_source = self.collect_data(source)
+                    self.data = self.data.merge(
+                        next_source,
+                        on=on,
+                        how='left',
+                        )
 
     def collect_data(self, source: str) -> pd.DataFrame:
         '''
@@ -48,7 +62,7 @@ class Data:
         sub-directories.
 
         Args:
-        source -- string; directory or CSV where data is stored.
+        source -- string; directory or CSV of the data.
 
         Returns:
         data -- pandas DataFrame; all CSV files from source aggregated together.
@@ -82,9 +96,11 @@ class Data:
         return data
 
     def clean(self):
+        self._drop_missing()
         self._drop_results()
         self._move_results()
         self._redistribute_results()
+        self._factorize_strings(['direction'])
         self.data = self.data.fillna(0.)
 
     def split(self, split: Tuple[float, float, float]):
@@ -189,6 +205,9 @@ class Data:
 
         return {'train': train_dl, 'dev': dev_dl, 'test': test_dl}
 
+    def _drop_missing(self):
+        self.data = self.data.loc[~self.data.mlb_id.isnull()]
+
     def _drop_results(self):
         drop = ['sac_fly_double_play', 'batter_interference',
             'sac_bunt_double_play', 'hit_by_pitch', 'interf_def',
@@ -214,6 +233,10 @@ class Data:
 
         self.data = self.data.drop(self.data[self.data['result'].eq('field_out')].sample(reduced_field_outs).index)
         self.data = self.data.drop(self.data[self.data['result'].eq('single')].sample(reduced_singles).index)
+
+    def _factorize_strings(self, cols: List[str]):
+        for col in cols:
+            self.data[col] = pd.factorize(self.data[col])[0] + 1
 
     @staticmethod
     def get_labels():
