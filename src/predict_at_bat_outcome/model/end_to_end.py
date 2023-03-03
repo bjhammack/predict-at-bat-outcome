@@ -3,6 +3,7 @@ if '..' not in sys.path:
     sys.path.insert(0, '..')
     sys.path.insert(0, '.')
 import logging
+import pandas as pd
 import torch
 from torch import nn
 from torch.optim import Adam
@@ -18,21 +19,21 @@ from utils import timer, set_dated_file
 
 @timer
 def get_data(
-        source: str,
+        sources: str,
         split: Tuple[float],
         batch: int,
         device,
         ) -> Tuple[Dict[str, DataLoader], Tuple[str]]:
-    atbats = Data(source)
+    atbats = Data(sources)
 
-    logging.info(f'Data source: {source}')
+    logging.info(f'Data source: {sources}')
 
     atbats.clean()
     atbats.shuffle(seed=1)
     classes = atbats.get_labels()
     atbats.split(split)
     xy_dict = atbats.create_XY(
-        x=['exit_velocity', 'launch_angle', 'pitch_velocity'],
+        x=['exit_velocity', 'launch_angle', 'direction', 'ft/s', 'pitch_velocity'],
         y='result',
         data=[atbats.train, atbats.dev, atbats.test]
         )
@@ -47,7 +48,7 @@ def get_data(
 
 def get_hidden_layers():
     return [
-        nn.Linear(3, 32),
+        nn.Linear(5, 32),
         nn.ReLU(),
         nn.Linear(32, 64),
         nn.ReLU(),
@@ -71,7 +72,7 @@ def get_hyperparameters():
         'optimizer': Adam,
         'scheduler': OneCycleLR,
         'lr': 3e-3,
-        'epochs': 100,
+        'epochs': 1000,
         'batch_size': 1000,
         'weight_decay': 1e-4,
         'max_lr': 1e-2,
@@ -79,7 +80,7 @@ def get_hyperparameters():
 
 
 @timer
-def main(data_source, save_path, checkpoint_path, version):
+def main(data_sources, save_path, checkpoint_path, version):
     logging.info(f'Model will be saved at: \'{save_path}\'')
     logging.info(f'Checkpoints will be saved at: \'{checkpoint_path}\'')
 
@@ -87,7 +88,7 @@ def main(data_source, save_path, checkpoint_path, version):
     logging.info(f'Device: {device}')
 
     hparams = get_hyperparameters()
-    dls, classes = get_data(data_source, hparams['split'], hparams['batch_size'], device)
+    dls, classes = get_data(data_sources, hparams['split'], hparams['batch_size'], device)
 
     for dl in ('train', 'dev', 'test'):
         if dl == 'train':
@@ -123,7 +124,7 @@ def main(data_source, save_path, checkpoint_path, version):
 
 
 if __name__ == '__main__':
-    vers = 'v3.6'
+    vers = 'v4.1'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'
@@ -132,7 +133,10 @@ if __name__ == '__main__':
 
     logging.basicConfig(filename=set_dated_file(log_loc, pre, '.log'), level=logging.INFO)
     main(
-        data_source = 'F:/baseball/active_player_abs/',
+        data_sources = [
+            'F:/baseball/active_player_abs/',
+            'F:/baseball/statcast_running/'
+            ],
         save_path = set_dated_file(save_loc, pre, '.pt'),
         checkpoint_path = set_dated_file(check_loc, pre, check_suf),
         version=vers,

@@ -4,15 +4,36 @@ Baseball has always been a cutting edge sport in regards to analytics. More and 
 
 # Table of Contents
 1. [Data](#data)
+    - [Features](#features-v40)
+    - [Label Distribution](#label-distribution-v40)
+    - [Results by EV and LA](#results-by-exit-velocity-and-launch-angle-v40)
 2. [Models](#models)
     1. [v1.0](#v10)
     2. [v2.0](#v20)
     3. [v2.1](#v21)
     4. [v3.6](#v36)
+    5. [v4.0](#v40)
 
 
-# Data
-The dataset is every player who was active in 2020's at bats from 2015 - 2020. This totals 778,449 rows of data, almost all of which are very high quality. The data was acquired via another program I've written, that scrapes baseball statistics off of various sites ([mlb.com](https://www.mlb.com), [fangraphs](https://www.fangraphs.com), [baseballsavant](https://www.baseballsavant.mlb.com), etc.) and saves them for later use. These particular statistics (pitch velo, exit velo, and launch angle) were scraped from [baseballsavant](https://www.baseballsavant.mlb.com).
+# Data (for versions 1.X - 4.X)
+## Versions 1.X - 4.X
+The dataset is every player who was active in 2020's at bats from 2015 - 2020. This totals 778,449 rows of data, almost all of which are very high quality. The data was acquired via another program I've written, that scrapes baseball statistics off of various sites ([mlb.com](https://www.mlb.com), [fangraphs](https://www.fangraphs.com), [baseballsavant](https://www.baseballsavant.mlb.com), etc.) and saves them for later use. These particular statistics were scraped from [baseballsavant](https://www.baseballsavant.mlb.com).
+
+### Features (v4.0+)
+| 1 | 2 | 3 | 4 |
+|---|---|---|---|
+| exit_velocity | launch_angle | ft/s (hitter speed) | pitch_velocity |
+
+### Label Distribution (v4.0+)
+
+![label-distribution](assets/data_images/label_distribution.png)
+
+### Results by Exit Velocity and Launch Angle (v4.0+)
+The two main drivers of hit results are exit velocity and launch angle, so their relationship to the results is an important aspect to understand.
+
+![results-by-ev-la](assets/data_images/result_angle_velo_scatter.png)
+
+
 
 
 # Models
@@ -326,3 +347,87 @@ I do believe this current model could outperform a human who was also only given
 | home_run   | 2,664         | 84.95%   |
 
 This means the only reasonable next step is to begin gathering new data with a more robust feature set. This will take an unknown amount of time; the original data gathering project had ever-evolving issues and two years have probably only increased the number of those issues. As such, this project will be on temporary hold, until the web-scraping project, fondly named "Baseball Spider", can be revamped for a new era.
+
+
+## v4.1
+Version 4.0 (and subsequently v4.1) incorporates new features into the model, with the aim that new features will push the model past the 70% accuracy threshold.
+
+### Data
+
+#### Changes
+Input data has added two new columns to the feature set: `direction` and `ft/s`.
+
+##### Direction
+Direction is simply the direction the ball was hit ("pull", "straightaway", and "opposite"). This three-class format is somewhat elementary and not nearly as granular as I would like, but it has proven difficult to acquire anything more robust for this feature.
+
+![direction-distribution](assets/data_images/direction_distribution.png)
+
+Note: These string labels will be factorized for training.
+
+##### Feet per second
+Feet per second (ft/s), represents the hitter's average speed over the year. It is a scalar ranging from 0 to ~30. Not every sample has this feature, but enough do where I don't consider it an issue.
+
+| Stat | Value |
+|------|:-----:|
+| Mean | 26.9  |
+| Std  | 2.66  |
+| Min  | 0.0   |
+| Max  | 30.9  |
+
+There are more features able to be added at this time, but ingesting new features in batches, to better assess the performance of the new features, is the best approach for v4.0/1.
+
+#### Classes
+Remains the same as [v2.1](#classes-2).
+
+#### Distribution
+Remains the same as [v2.1](#distribution-2).
+
+#### Split
+The same as [v2.1](#split-2).
+
+### Neural Network
+| Layer | Input Nodes | Output Nodes | Function |
+|:-----:|:-----------:|:------------:|----------|
+| 1     | 5           | 32           | ReLU     |
+| 2     | 32          | 64           | ReLU     |
+| 3     | 64          | 32           | ReLU     |
+| 4     | 32          | 4            | Softmax  |
+
+### Hyperparameters
+| H-param       | Value              |
+|---------------|--------------------|
+| Split         | 80/10/10           |
+| Loss          | Cross Entropy Loss |
+| Optimizer     | Adam               |
+| Learning Rate | 3e-3               |
+| Epochs        | 1,000              |
+| Batch Sizes   | 1,000              |
+| Weight Decay  | 1e-4               |
+| Scheduler     | OneCycleLR         |
+| Max LR        | 1e-2               |
+
+### Training
+After training v4.0 on 100 epochs, then v4.1 with the same hyperparameters and 1,000 epochs, there was no measurable improvement to the model due to the new features. Version 4.1 did show marginal improvment overall, due to it being trained on 1,000 epochs instead of 100, but again these improvement were small in comparison to the goal. 
+
+(v4.1 is the long, purple line. All other lines are the previous models for comparison.)
+| Loss | Accuracy |
+|:----:|:--------:|
+| ![training_loss](assets/training_graphs/v4.1_train_loss.png) | ![training_acc](assets/training_graphs/v4.1_train_acc.png) |
+| ![dev_loss](assets/training_graphs/v4.1_dev_loss.png) | ![dev_acc](assets/training_graphs/v4.1_dev_acc.png) |
+
+#### Final Evaluation on the test set
+| Loss   | Accuracy |
+|:------:|:--------:|
+| 0.7451 | 0.69     |
+
+### Evaluation
+The first foray into incorporating more data has left me wanting. Evaulating the overall model accuracy, loss, and label accuracy all point to the same conclusion: the two new features made a negligible difference. The one bright spot in this iteration is the increased epochs. It wasn't much, but the model was able to squeeze out one more percentage point in accuracy (and improved loss) when it's time training was 10x'd. This is good information for the future, when it is time to try and maximize the model in every small way possible, but for now it is a very pyrrhic victory.
+
+| Label      | Total Samples | Accuracy |
+|------------|:-------------:|:--------:|
+| field_out  | 3,989         | 67.32%   |
+| single     | 3,965         | 75.26%   |
+| non_hr_xbh | 3,973         | 52.94%   |
+| home_run   | 2,664         | 87.12%   |
+
+Next iteration will focus on revamping the dataset even further with more features, more precise features, and more data overall. I already have several ideas on how to accomplish this.
