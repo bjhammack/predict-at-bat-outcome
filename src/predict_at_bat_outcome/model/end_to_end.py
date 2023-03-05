@@ -33,8 +33,20 @@ def get_data(
     classes = atbats.get_labels()
     atbats.split(split)
     xy_dict = atbats.create_XY(
-        x=['exit_velocity', 'launch_angle', 'direction', 'ft/s', 'pitch_velocity'],
-        y='result',
+        x=[
+            'launch_speed',
+            'la_z',
+            'la_xy',
+            'ft/s',
+            'effective_speed',
+            'release_spin_rate',
+            'zone',
+            'stand',
+            'p_throws',
+            'if_fielding_alignment',
+            'of_fielding_alignment',
+        ],
+        y='events',
         data=[atbats.train, atbats.dev, atbats.test]
         )
     xy_dict = atbats.normalize(xy_dict)
@@ -72,7 +84,7 @@ def get_hyperparameters():
         'optimizer': Adam,
         'scheduler': OneCycleLR,
         'lr': 3e-3,
-        'epochs': 1000,
+        'epochs': 100,
         'batch_size': 1000,
         'weight_decay': 1e-4,
         'max_lr': 1e-2,
@@ -124,7 +136,7 @@ def main(data_sources, save_path, checkpoint_path, version):
 
 
 if __name__ == '__main__':
-    vers = 'v4.1'
+    vers = 'v5.0'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'
@@ -134,8 +146,8 @@ if __name__ == '__main__':
     logging.basicConfig(filename=set_dated_file(log_loc, pre, '.log'), level=logging.INFO)
     main(
         data_sources = [
-            'F:/baseball/active_player_abs/',
-            'F:/baseball/statcast_running/'
+            'F:/baseball/statcast_pitch/',
+            'F:/baseball/statcast_running/',
             ],
         save_path = set_dated_file(save_loc, pre, '.pt'),
         checkpoint_path = set_dated_file(check_loc, pre, check_suf),
