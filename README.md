@@ -4,25 +4,33 @@ Baseball has always been a cutting edge sport in regards to analytics. More and 
 
 # Table of Contents
 1. [Data](#data)
-    - [Features](#features-v40)
-    - [Label Distribution](#label-distribution-v40)
-    - [Results by EV and LA](#results-by-exit-velocity-and-launch-angle-v40)
-2. [Models](#models)
+    1. [Dataset for Versions 1.X - 4.X](#dataset-for-versions-1x---4x)
+        - [Features](#features-v40)
+        - [Label Distribution](#label-distribution-v40)
+        - [Results by EV and LA](#results-by-exit-velocity-and-launch-angle-v40)
+    2. [Dataset for Versions 5.X+](#dataset-for-versions-5x)
+        - [Features](#features-v50)
+        - [Label Distribution](#label-distribution-v50)
+        - [Results by EV and LA](#results-by-exit-velocity-and-launch-angle-v50)
+2. [Summary](#summary)
+3. [Models](#models)
     1. [v1.0](#v10)
     2. [v2.0](#v20)
     3. [v2.1](#v21)
-    4. [v3.6](#v36)
-    5. [v4.0](#v40)
+    4. [v3.X](#v3x)
+    5. [v4.1](#v41)
+    6. [v5.0](#v50)
+    7. [v5.1](#v51)
 
 
-# Data (for versions 1.X - 4.X)
-## Versions 1.X - 4.X
-The dataset is every player who was active in 2020's at bats from 2015 - 2020. This totals 778,449 rows of data, almost all of which are very high quality. The data was acquired via another program I've written, that scrapes baseball statistics off of various sites ([mlb.com](https://www.mlb.com), [fangraphs](https://www.fangraphs.com), [baseballsavant](https://www.baseballsavant.mlb.com), etc.) and saves them for later use. These particular statistics were scraped from [baseballsavant](https://www.baseballsavant.mlb.com).
+# Data
+## Dataset for Versions 1.X - 4.X
+The dataset is every player who was active in 2020's at bats from 2015 - 2020. This totals 778,449 rows of data, almost all of which are very high quality. The data was acquired via another program I've written, that scrapes baseball statistics off of various sites ([mlb.com](https://www.mlb.com), [fangraphs](https://www.fangraphs.com), [baseballsavant](https://www.baseballsavant.mlb.com), etc.) and saves them for later use. That python program is called [baseball-spider](). These particular statistics were scraped from [baseballsavant](https://www.baseballsavant.mlb.com).
 
 ### Features (v4.0+)
-| 1 | 2 | 3 | 4 |
-|---|---|---|---|
-| exit_velocity | launch_angle | ft/s (hitter speed) | pitch_velocity |
+| 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|
+| exit_velocity | launch_angle | ft/s (hitter speed) | pitch_velocity | direction |
 
 ### Label Distribution (v4.0+)
 
@@ -34,6 +42,62 @@ The two main drivers of hit results are exit velocity and launch angle, so their
 ![results-by-ev-la](assets/data_images/result_angle_velo_scatter.png)
 
 
+## Dataset for Versions 5.X+
+This dataset was gathered in my desire to get more robust horizontal launch angle features for my dataset. It was gathered via the [pybaseball](https://github.com/jldbc/pybaseball) library; a python library created by James LeDoux and his colleagues. This dataset was then joined with the statcast running data `baseball-spider` gathered.
+
+This library bears many similarities to `baseball-spider`, in regards to the type of data it gathers for this project (pitch level data), with its two key differences being:
+1. It gathers data for **every** pitch, not just the end-result pitch of an at-bat.
+2. It gathers the data via [baseballsavant's Statcast Search CSV data downloads](https://baseballsavant.mlb.com/csv-docs) functionality, rather than webscraping, like baseball-spider.
+
+The full dataset has 5,479,762 rows, but since the focus is on in-play events, the tapered down dataset has 959,011  rows. There are three reasons this dataset is larger than `baseball-spider`'s:
+1. It contains data for 2015-2022, rather than just 2015-2020.
+2. I missed some `mlb_ids` when originally gathering the data with `baseball-spider`, so some players are missing.
+3. The `pybaseball` data includes spring training, exhibition, and playoff games.
+
+This data has significantly more features to potentially use, so it offers a good opportunity to test and tune the data on larger feature sets. The two columns I would like to highlight most for this purpose are `hc_x` and `hc_y`. These two columns represent the X and Y pixel coordinates of the ball's location on MLB's map of the field. Using these two coordinates and some rough-and-tumble math, we can estimate the horizontal launch angle. Bill Petti, in his [Statcast-Modeling](https://github.com/BillPetti/Statcast-Modeling) project, provides a formula that he uses as a rough estimation for this calculation. It is an imperfect formula, as you will find that it will, on occasion, put balls in incorrect positions (eg. in foul territory when it was a fair ball), but it is consistent enough where I believe it will serve this project's purposes.
+```tan((hc_x - 128) / (208 - hc_y)) * 180 / pi * 0.75```
+
+### Features (v5.0+)
+| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|----|----|
+| exit_velocity | la_z | la_xy | ft/s (hitter speed) | effective_speed (pitch velo) | release_spin | zone | stand (batter side) | p_throws (pitcher's hand) | if_fielding_alignment | of_fielding_alignment |
+
+### Label Distribution (v5.0+)
+
+![label-distribution](assets/data_images/label_distribution_v5.png)
+
+### Results by Exit Velocity and Launch Angle (v5.0+)
+The two main drivers of hit results are exit velocity and launch angle, so their relationship to the results is an important aspect to understand.
+
+![results-by-ev-la](assets/data_images/result_angle_velo_scatter_v5.png)
+
+
+# Summary
+Up to this point 14 iterations have been tested, each one bringing a new feature to the model (whether it be a new hyperparameter, more data, transformed data, etc.). The best performing model at this time is [version 5.1](#v51), with an accuracy hovering around 76%. Before v5.X, development began to stagnate because the data source was simply not robust enough. Many efforts were made to improve the original data source, such as: redistributing label ratios ([v2.0](#v20)), combining similar labels ([v2.1](#v21)), and joining it with new data sources ([v4.1](#v41)). None of these changes were able to improve the model in any measurable way; the earliest iterations, up to v4.1, all were within 2% of each other in accuracy.
+
+When data transformations brought little improvement, model improvements and hyperparamter tuning became the focus for a time. Unfortunately, this too saw little significant improvement in the model.
+
+It wasn't until v5.1 that the model saw a dramatic improvement, because of switching to a new data source. This [data source](#dataset-for-versions-5x) was larger, had more features, but maintained the same consistency and quality as my original source. This source, coupled with longer training, and a larger model proved to be catalyst needed to push this model into a more high-performing state.
+
+In short, at this point in the project's life, increased complexity was the key to improved model performance. Sometimes complexity can hurt a neural network, but when the dataset is too simple you are not leveraging the most advantageous aspects of neural networks.
+
+## Evaluation Performance by Iteration
+|            | Test Loss | Test Accuracy |
+|-----------:|-----------|---------------|
+|[v1.0](#v10)| 0.9048    | 66%           |
+|[v2.0](#v10)| 0.9048    | 67%           |
+|[v2.1](#v10)| 1.6680    | 68%           |
+|[v3.0](#v3x)| 0.7438    | 69%           |
+|[v3.1](#v3x)| 1.7436    | 67%           |
+|[v3.2](#v3x)| 1.7357    | 68%           |
+|[v3.3](#v3x)| 1.7419    | 68%           |
+|[v3.4](#v3x)| 0.7440    | 68%           |
+|[v3.5](#v3x)| 1.7468    | 67%           |
+|[v3.6](#v3x)| 1.3459    | 68%           |
+|[v4.0](#v41)| 0.7438    | 68%           |
+|[v4.1](#v41)| 0.7451    | 69%           |
+|[v5.0](#v50)| 1.7224    | 67%           |
+|[v5.1](#v51)| 1.1501    | 76%           |
 
 
 # Models
@@ -102,7 +166,7 @@ After training for 100 epochs, the training loss flattened out almost immediatle
 ### Evaluation
 It is immediately apparent that there is some fundamental flaw with this iteration and only a little more digging reveals the truth. For almost every row of data, train, dev, or test, the model predicted `field_out`. Unsurprisingly, this gave the model ~0.66 accuracy for each dataset, since field outs make up two thirds of the data.
 
-While there are other obvious areas to improve the model, it seems data distribution is by far the most pressing issue, as it will measurably impact every future model if not dealt with first. It also eschews the need to continue evaluating this model by other means (precision, recall, etc.), because there is not point overwhelming the second iteration with "to-do's".
+While there are other obvious areas to improve the model, it seems data distribution is by far the most pressing issue, as it will measurably impact every future model if not dealt with first. It also eschews the need to continue evaluating this model by other means (precision, recall, etc.), because there is no point overwhelming the second iteration with "to-do's".
 
 The one benefit of this result is it begins to elucidate the target goal. Since there is no data evaluated by other means (eg. how well a heuristic model performs or how well a human can perform the task), this project lacks a "true" target goal of performance. At least now it is clear that one of the worst possible models will be correct 2 out of 3 times.
 
@@ -280,7 +344,7 @@ While not a scenario anyone would want, the possibility that 65-70% accuracy bei
 The next version will focus most on improving #2, #3, or both as those seem like the biggest potential improvement areas right now.
 
 
-## v3.6
+## v3.X
 Versions 3.X aimed to optimize model performance through hyperparameter tuning and model infrastructure.
 
 ### Data
@@ -431,3 +495,142 @@ The first foray into incorporating more data has left me wanting. Evaulating the
 | home_run   | 2,664         | 87.12%   |
 
 Next iteration will focus on revamping the dataset even further with more features, more precise features, and more data overall. I already have several ideas on how to accomplish this.
+
+
+## v5.0
+This version was used as more of a "proof of concept" version for using of the new data (detailed in [the data section](#dataset-for-versions-5x)). It used the few data source, but kept all other parameters and hyperparameters the same, including the sample features. This was to ensure that the perceived quality of the data showed up in model performance as well.
+
+### Data
+
+#### Changes
+Input data now comes from a new source, that has nearly double the samples to train on, but just as high quailty data as the original data source. Its features remain the same as [v4.1's](#changes-4), with the exception that `direction` has been removed.
+
+#### Classes
+Remains the same as [v2.1](#classes-2).
+
+#### Distribution
+Proportions remain the same as [v2.1](#distribution-2), but with more data for each class.
+
+#### Split
+The same as [v2.1](#split-2).
+
+### Neural Network
+| Layer | Input Nodes | Output Nodes | Function |
+|:-----:|:-----------:|:------------:|----------|
+| 1     | 5           | 32           | ReLU     |
+| 2     | 32          | 64           | ReLU     |
+| 3     | 64          | 32           | ReLU     |
+| 4     | 32          | 4            | Softmax  |
+
+### Hyperparameters
+| H-param       | Value              |
+|---------------|--------------------|
+| Split         | 80/10/10           |
+| Loss          | Cross Entropy Loss |
+| Optimizer     | Adam               |
+| Learning Rate | 3e-3               |
+| Epochs        | 100              |
+| Batch Sizes   | 1,000              |
+| Weight Decay  | 1e-4               |
+| Scheduler     | OneCycleLR         |
+| Max LR        | 1e-2               |
+
+### Training
+(v5.0 is the neon green line. All other lines are the previous models for comparison.)
+| Loss | Accuracy |
+|:----:|:--------:|
+| ![training_loss](assets/training_graphs/v5.0_train_loss.png) | ![training_acc](assets/training_graphs/v5.0_train_acc.png) |
+| ![dev_loss](assets/training_graphs/v5.0_dev_loss.png) | ![dev_acc](assets/training_graphs/v5.0_dev_acc.png) |
+
+#### Final Evaluation on the test set
+| Loss   | Accuracy |
+|:------:|:--------:|
+| 1.7224 | 0.67     |
+
+### Evaluation
+Not much time will be spent evaulating this model. In short, its performance was very much in line with the rest of the models. It was by no means the best of the existing models, in fact it was one of the lower performing ones (for this version), but the differences, as always, fell well within the margin of error we can expect for these models.
+
+v5.1 will look dramatically different, as I'll be testing if leveraging more features from the new data source proves helpful.
+
+
+## v5.1
+This verison aims to see how far a larger featureset and more robust model can take this project.
+
+### Data
+
+#### Changes
+Seven new columns have been added, bringing the total number of features to 11.
+1. Exit Velocity
+2. Z-axis Launch Angle
+3. XY-axis Launch Angle (horizontal launch angle)
+4. Pitch Velocity
+5. Pitcher Arm (left/right)
+6. Batting Side (left/right)
+7. Zone (numbers zone of where the ball roughly crossed the plate)
+8. Release Spin Rate
+9. Feet per Second (batter speed)
+10. Infield Alignment
+11. Outfield Alignment
+
+#### Classes
+Remains the same as [v2.1](#classes-2).
+
+#### Distribution
+Remains the same as [v5.0](#distribution-5).
+
+#### Split
+The same as [v2.1](#split-2).
+
+### Neural Network
+| Layer | Input Nodes | Output Nodes | Function |
+|:-----:|:-----------:|:------------:|----------|
+| 1     | 11          | 32           | ReLU     |
+| 2     | 32          | 64           | ReLU     |
+| 3     | 64          | 128          | ReLU     |
+| 4     | 128         | 128          | ReLU     |
+| 5     | 128         | 64           | ReLU     |
+| 6     | 64          | 32           | ReLU     |
+| 7     | 32          | 4            | Softmax  |
+
+### Hyperparameters
+| H-param       | Value              |
+|---------------|--------------------|
+| Split         | 80/10/10           |
+| Loss          | Cross Entropy Loss |
+| Optimizer     | Adam               |
+| Learning Rate | 3e-3               |
+| Epochs        | 1,000              |
+| Batch Sizes   | 1,000              |
+| Weight Decay  | 1e-4               |
+| Scheduler     | OneCycleLR         |
+| Max LR        | 1e-2               |
+
+### Training
+After 1,000 epochs, there were dramatic improvements in the model. The loss of both the dev set and the training set improved by ~6%, compared to the previous best performing model, and accuracy for both improved ~7%.
+
+(v5.1 is the light blue line. The purple line is [v4.1](#v41) (the best performing model up to this point).)
+| Loss | Accuracy |
+|:----:|:--------:|
+| ![training_loss](assets/training_graphs/v5.1_train_loss.png) | ![training_acc](assets/training_graphs/v5.1_train_acc.png) |
+| ![dev_loss](assets/training_graphs/v5.1_dev_loss.png) | ![dev_acc](assets/training_graphs/v5.1_dev_acc.png) |
+
+#### Final Evaluation on the test set
+| Loss   | Accuracy |
+|:------:|:--------:|
+| 1.1501 | 0.76     |
+
+### Evaluation
+This was, by far, the best largest improvement to the model in many iterations and it finally pushed it over that 70% threshold and then some. I am very pleased with the development and particularly the fact that the majority of improvements occurred around non-HR XBHs (from ~53% accuracy to 74.66%). Couple this with the fact that there are no obvious signs of bias, overfitting, etc. and the model is in a very strong position moving forward.
+
+| Label      | Total Samples | Accuracy |
+|------------|:-------------:|:--------:|
+| field_out  | 6,858         | 70.59%   |
+| single     | 7,091         | 75.81%   |
+| non_hr_xbh | 6,842         | 74.66%   |
+| home_run   | 4,439         | 86.71%   |
+
+This major development does have one flaw to it. In my over-zealousness to test out the new data source, a lot of changes were implmented in a single iteration, meaning it is somewhat more difficult to tease out which changes actually impacted the model the most. A few things to consider on this front:
+1. There was a dramatic sample size increase, which could have played a big role in helping the model learn.
+2. Epochs were increased from 100 to 1,000 compared to v5.0. Since v5.1 didn't pass v5.0 in performance until step 134, increased training time certainly played a role in the improvements.
+3. Three additional layers were added to the model and subsequently more nodes per layer. A reasonble explanation for part of the performance boost is that the added complexity of the model took better advantage of item #4's change.
+4. Seven new features were added. One of the more obvious potential reasons for model improvement. These curated features definitely played a role in model performance, but which ones and to what degree have yet to be determined.
