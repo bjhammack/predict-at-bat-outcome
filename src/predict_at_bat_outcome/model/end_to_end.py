@@ -36,15 +36,15 @@ def get_data(
         x=[
             'launch_speed',
             'la_z',
-            'la_xy',
+            # 'la_xy',
             'ft/s',
             'effective_speed',
-            'release_spin_rate',
-            'zone',
-            'stand',
-            'p_throws',
-            'if_fielding_alignment',
-            'of_fielding_alignment',
+            # 'release_spin_rate',
+            # 'zone',
+            # 'stand',
+            # 'p_throws',
+            # 'if_fielding_alignment',
+            # 'of_fielding_alignment',
         ],
         y='events',
         data=[atbats.train, atbats.dev, atbats.test]
@@ -60,7 +60,7 @@ def get_data(
 
 def get_hidden_layers():
     return [
-        nn.Linear(5, 32),
+        nn.Linear(4, 32),
         nn.ReLU(),
         nn.Linear(32, 64),
         nn.ReLU(),
