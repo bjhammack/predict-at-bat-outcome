@@ -75,9 +75,9 @@ The two main drivers of hit results are exit velocity and launch angle, so their
 # Summary
 Up to this point 14 iterations have been tested, each one bringing a new feature to the model (whether it be a new hyperparameter, more data, transformed data, etc.). The best performing model at this time is [version 5.1](#v51), with an accuracy hovering around 76%. Before v5.X, development began to stagnate because the data source was simply not robust enough. Many efforts were made to improve the original data source, such as: redistributing label ratios ([v2.0](#v20)), combining similar labels ([v2.1](#v21)), and joining it with new data sources ([v4.1](#v41)). None of these changes were able to improve the model in any measurable way; the earliest iterations, up to v4.1, all were within 2% of each other in accuracy.
 
-When data transformations brough little improvement, model improvements and hyperparamter tuning became the focus for a time. Unfortunately, this too saw little significant improvement in the model.
+When data transformations brought little improvement, model improvements and hyperparamter tuning became the focus for a time. Unfortunately, this too saw little significant improvement in the model.
 
-It wasn't until v5.1 that the model saw a dramatic improvement, because of switching to a new data source. This [data source](#dataset-for-versions-5x) was larger, had more features, but maintained the consistency and quality as my original source. This source, coupled with longer training, and a larger model proved to be catalyst needed to push this model into a more high-performing state.
+It wasn't until v5.1 that the model saw a dramatic improvement, because of switching to a new data source. This [data source](#dataset-for-versions-5x) was larger, had more features, but maintained the same consistency and quality as my original source. This source, coupled with longer training, and a larger model proved to be catalyst needed to push this model into a more high-performing state.
 
 In short, at this point in the project's life, increased complexity was the key to improved model performance. Sometimes complexity can hurt a neural network, but when the dataset is too simple you are not leveraging the most advantageous aspects of neural networks.
 
@@ -166,7 +166,7 @@ After training for 100 epochs, the training loss flattened out almost immediatle
 ### Evaluation
 It is immediately apparent that there is some fundamental flaw with this iteration and only a little more digging reveals the truth. For almost every row of data, train, dev, or test, the model predicted `field_out`. Unsurprisingly, this gave the model ~0.66 accuracy for each dataset, since field outs make up two thirds of the data.
 
-While there are other obvious areas to improve the model, it seems data distribution is by far the most pressing issue, as it will measurably impact every future model if not dealt with first. It also eschews the need to continue evaluating this model by other means (precision, recall, etc.), because there is not point overwhelming the second iteration with "to-do's".
+While there are other obvious areas to improve the model, it seems data distribution is by far the most pressing issue, as it will measurably impact every future model if not dealt with first. It also eschews the need to continue evaluating this model by other means (precision, recall, etc.), because there is no point overwhelming the second iteration with "to-do's".
 
 The one benefit of this result is it begins to elucidate the target goal. Since there is no data evaluated by other means (eg. how well a heuristic model performs or how well a human can perform the task), this project lacks a "true" target goal of performance. At least now it is clear that one of the worst possible models will be correct 2 out of 3 times.
 
