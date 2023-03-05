@@ -4,25 +4,30 @@ Baseball has always been a cutting edge sport in regards to analytics. More and 
 
 # Table of Contents
 1. [Data](#data)
-    - [Features](#features-v40)
-    - [Label Distribution](#label-distribution-v40)
-    - [Results by EV and LA](#results-by-exit-velocity-and-launch-angle-v40)
+    1. [Dataset for Versions 1.X - 4.X](#dataset-for-versions-1x---4x)
+        - [Features](#features-v40)
+        - [Label Distribution](#label-distribution-v40)
+        - [Results by EV and LA](#results-by-exit-velocity-and-launch-angle-v40)
+    2. [Dataset for Versions 5.X+](#dataset-for-versions-5x)
+        - [Features](#features-v50)
+        - [Label Distribution](#label-distribution-v50)
+        - [Results by EV and LA](#results-by-exit-velocity-and-launch-angle-v50)
 2. [Models](#models)
     1. [v1.0](#v10)
     2. [v2.0](#v20)
     3. [v2.1](#v21)
     4. [v3.6](#v36)
-    5. [v4.0](#v40)
+    5. [v4.1](#v41)
 
 
-# Data (for versions 1.X - 4.X)
-## Versions 1.X - 4.X
-The dataset is every player who was active in 2020's at bats from 2015 - 2020. This totals 778,449 rows of data, almost all of which are very high quality. The data was acquired via another program I've written, that scrapes baseball statistics off of various sites ([mlb.com](https://www.mlb.com), [fangraphs](https://www.fangraphs.com), [baseballsavant](https://www.baseballsavant.mlb.com), etc.) and saves them for later use. These particular statistics were scraped from [baseballsavant](https://www.baseballsavant.mlb.com).
+# Data
+## Dataset for Versions 1.X - 4.X
+The dataset is every player who was active in 2020's at bats from 2015 - 2020. This totals 778,449 rows of data, almost all of which are very high quality. The data was acquired via another program I've written, that scrapes baseball statistics off of various sites ([mlb.com](https://www.mlb.com), [fangraphs](https://www.fangraphs.com), [baseballsavant](https://www.baseballsavant.mlb.com), etc.) and saves them for later use. That python program is called [baseball-spider](). These particular statistics were scraped from [baseballsavant](https://www.baseballsavant.mlb.com).
 
 ### Features (v4.0+)
-| 1 | 2 | 3 | 4 |
-|---|---|---|---|
-| exit_velocity | launch_angle | ft/s (hitter speed) | pitch_velocity |
+| 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|
+| exit_velocity | launch_angle | ft/s (hitter speed) | pitch_velocity | direction |
 
 ### Label Distribution (v4.0+)
 
@@ -34,6 +39,34 @@ The two main drivers of hit results are exit velocity and launch angle, so their
 ![results-by-ev-la](assets/data_images/result_angle_velo_scatter.png)
 
 
+## Dataset for Versions 5.X+
+This dataset was gathered in my desire to get more robust horizontal launch angle features for my dataset. It was gathered via the [pybaseball](https://github.com/jldbc/pybaseball) library; a python library created by James LeDoux and his colleagues. Then this dataset was then joined with the statcast running data `baseball-spider` gathered.
+
+This library bears many similarities to `baseball-spider`, in regards to the type of data it gathers for this project (pitch level data), with its two key differences being:
+1. It gathers data for **every** pitch, not just the end-result pitch of an at-bat.
+2. It gathers the data via [baseballsavant's Statcast Search CSV data downloads](https://baseballsavant.mlb.com/csv-docs) functionality, rather than webscraping, like baseball-spider.
+
+The full dataset has 5,479,762 rows, but since the focus is on in-play events, the tapered down dataset has 959,011  rows. There are three reasons this dataset is larger than `baseball-spider`'s:
+1. It contains data for 2015-2022, rather than just 2015-2020.
+2. I missed some `mlb_ids` when originally gathering the data with `baseball-spider`, so some players are missing.
+3. The `pybaseball` data includes spring training, exhibition, and playoff games.
+
+This data has significantly more features to potentially use, so it offers a good opportunity to test and tune the data on larger feature sets. The two columns I would like to highlight most for this purpose are `hc_x` and `hc_y`. These two columns represent the X and Y pixel coordinates of the ball's location on MLB's map of the field. Using these two coordinates and some rough-and-tumble math, we can estimate the horizontal launch angle. Bill Petti, in his [Statcast-Modeling](https://github.com/BillPetti/Statcast-Modeling) project, provides a formula that he uses as a rough estimation for this calculation. It is an imperfect formula, as you will find that it will, on occasion, put balls in incorrect positions (eg. in foul territory when it was a fair ball), but it is consistent enough where I believe it will serve this project's purposes.
+```tan((hc_x - 128) / (208 - hc_y)) * 180 / pi * 0.75```
+
+### Features (v5.0+)
+| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|----|----|
+| exit_velocity | la_z | la_xy | ft/s (hitter speed) | effective_speed (pitch velo) | release_spin | zone | stand (batter side) | p_throws (pitcher's hand) | if_fielding_alignment | of_fielding_alignment |
+
+### Label Distribution (v5.0+)
+
+![label-distribution](assets/data_images/label_distribution_v5.png)
+
+### Results by Exit Velocity and Launch Angle (v5.0+)
+The two main drivers of hit results are exit velocity and launch angle, so their relationship to the results is an important aspect to understand.
+
+![results-by-ev-la](assets/data_images/result_angle_velo_scatter_v5.png)
 
 
 # Models
