@@ -36,15 +36,15 @@ def get_data(
         x=[
             'launch_speed',
             'la_z',
-            # 'la_xy',
+            'la_xy',
             'ft/s',
             'effective_speed',
-            # 'release_spin_rate',
-            # 'zone',
-            # 'stand',
-            # 'p_throws',
-            # 'if_fielding_alignment',
-            # 'of_fielding_alignment',
+            'release_spin_rate',
+            'zone',
+            'stand',
+            'p_throws',
+            'if_fielding_alignment',
+            'of_fielding_alignment',
         ],
         y='events',
         data=[atbats.train, atbats.dev, atbats.test]
@@ -60,16 +60,16 @@ def get_data(
 
 def get_hidden_layers():
     return [
-        nn.Linear(4, 32),
+        nn.Linear(11, 32),
         nn.ReLU(),
         nn.Linear(32, 64),
         nn.ReLU(),
-        # nn.Linear(64, 128),
-        # nn.ReLU(),
-        # nn.Linear(128, 128),
-        # nn.ReLU(),
-        # nn.Linear(128, 64),
-        # nn.ReLU(),
+        nn.Linear(64, 128),
+        nn.ReLU(),
+        nn.Linear(128, 128),
+        nn.ReLU(),
+        nn.Linear(128, 64),
+        nn.ReLU(),
         nn.Linear(64, 32),
         nn.ReLU(),
         nn.Linear(32, 4),
@@ -84,7 +84,7 @@ def get_hyperparameters():
         'optimizer': Adam,
         'scheduler': OneCycleLR,
         'lr': 3e-3,
-        'epochs': 100,
+        'epochs': 1000,
         'batch_size': 1000,
         'weight_decay': 1e-4,
         'max_lr': 1e-2,
@@ -136,7 +136,7 @@ def main(data_sources, save_path, checkpoint_path, version):
 
 
 if __name__ == '__main__':
-    vers = 'v5.0'
+    vers = 'v5.1'
     pre = f'model-{vers}'
     log_loc = 'logs'
     save_loc = 'saved_models'
