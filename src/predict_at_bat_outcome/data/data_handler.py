@@ -43,13 +43,15 @@ class Data:
             if type(sources) is str:
                 sources = [sources,]
             self.data = self.collect_data(sources[0])
-            self.data['season'] = pd.to_datetime(self.data['game_date']).dt.year  # needs to be refactored
+            if 'game_date' in self.data.columns:
+                self.data['season'] = pd.to_datetime(self.data['game_date']).dt.year  # needs to be refactored
             self.sources = [sources[0],]
             if len(sources) > 1:
                 sources_ons = list(zip(sources[1:], [on]*len(sources[1:])))
                 for source, on in sources_ons:
                     self.sources.append(source)
                     next_source = self.collect_data(source)
+                    next_source['batter'] = next_source['mlb_id'].str.split('-').str[-1].astype(int)
                     self.data = self.data.merge(
                         next_source,
                         on=on,
@@ -97,10 +99,13 @@ class Data:
 
     def clean(self):
         self._drop_missing()
-        self._drop_results()
+        self._keep_results()
         self._move_results()
         self._redistribute_results()
-        self._factorize_strings(['direction'])
+        self._add_la_xy()
+        self._factorize_strings(
+            ['stand','p_throws','if_fielding_alignment','of_fielding_alignment']
+            )
         self.data = self.data.fillna(0.)
 
     def split(self, split: Tuple[float, float, float]):
@@ -208,12 +213,12 @@ class Data:
     def _drop_missing(self):
         self.data = self.data.loc[~self.data.mlb_id.isnull()]
 
-    def _drop_results(self):
-        drop = ['sac_fly_double_play', 'batter_interference',
-            'sac_bunt_double_play', 'hit_by_pitch', 'interf_def',
-            'strikeout_double_play', 'intent_walk', 'strikeout',
-            'walk']
-        self.data = self.data.loc[~self.data.result.isin(drop)]
+    def _keep_results(self):
+        keep = ['field_out', 'double', 'single', 'double_play', 'sac_fly',
+                'fielders_choice', 'grounded_into_double_play', 'force_out',
+                'triple', 'home_run', 'field_error','fielders_choice_out',
+                'triple_play', 'sac_bunt']
+        self.data = self.data.loc[self.data.events.isin(keep)]
 
     def _move_results(self):
         field_out = ['fielders_choice', 'triple_play','sac_bunt',
@@ -221,18 +226,22 @@ class Data:
             'force_out', 'grounded_into_double_play', 'sac_fly']
         non_hr_xbh = ['double', 'triple']
 
-        self.data.loc[self.data.result.isin(field_out), ['result']] = 'field_out'
-        self.data.loc[self.data.result.isin(non_hr_xbh), ['result']] = 'non_hr_xbh'
+        self.data.loc[self.data.events.isin(field_out), ['events']] = 'field_out'
+        self.data.loc[self.data.events.isin(non_hr_xbh), ['events']] = 'non_hr_xbh'
 
     def _redistribute_results(self):
-        row_ceil = 40_000
-        field_outs = self.data.loc[self.data.result.eq('field_out'), 'result'].count()
+        row_ceil = 70_000
+        field_outs = self.data.loc[self.data.events.eq('field_out'), 'events'].count()
         reduced_field_outs = field_outs - row_ceil
-        singles = self.data.loc[self.data.result.eq('single'), 'result'].count()
+        singles = self.data.loc[self.data.events.eq('single'), 'events'].count()
         reduced_singles = singles - row_ceil
 
-        self.data = self.data.drop(self.data[self.data['result'].eq('field_out')].sample(reduced_field_outs).index)
-        self.data = self.data.drop(self.data[self.data['result'].eq('single')].sample(reduced_singles).index)
+        self.data = self.data.drop(self.data[self.data['events'].eq('field_out')].sample(reduced_field_outs).index)
+        self.data = self.data.drop(self.data[self.data['events'].eq('single')].sample(reduced_singles).index)
+
+    def _add_la_xy(self):
+        self.data['la_xy'] = np.tan((self.data['hc_x'] - 128.) / (208. - self.data['hc_y'])) * 180. / np.pi * 0.75
+        self.data = self.data.rename(columns={'launch_angle': 'la_z'})
 
     def _factorize_strings(self, cols: List[str]):
         for col in cols:
