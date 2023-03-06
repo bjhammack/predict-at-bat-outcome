@@ -36,7 +36,7 @@ class Data:
         '''
         self.data = self.train = self.dev = self.test = self.splits = self.sources = self.norm_mean = self.norm_std = None  # noqa: E501
 
-        if data:
+        if type(data) == pd.DataFrame:
             self.data = data
             self.sources = ['Pre-collected',]
         elif sources and not data:
@@ -140,13 +140,6 @@ class Data:
         perm = np.random.RandomState(seed=seed).permutation(data_len)
         self.data = self.data.iloc[perm].reset_index(drop=True)
 
-    def normalize(self, X: np.array) -> np.array:
-        '''
-        Returns normalized numpy array and saves norming values.
-        (should only pass training data to this function)
-        '''
-        return
-
     def create_XY(
             self,
             x: Union[str, List[str]],
@@ -188,27 +181,39 @@ class Data:
         return xy_dict
 
     def normalize(self, xy_dict) -> Dict[str, np.array]:
-        self.norm_mean = np.mean(xy_dict['X_train'])
-        self.norm_std = np.std(xy_dict['X_train'])
-        for dataset in ('X_train', 'X_dev','X_test'):
-            xy_dict[dataset] = (xy_dict[dataset] - self.norm_mean) / self.norm_std
+        if not self.norm_mean and self.norm_std:
+            self.norm_mean = np.mean(xy_dict['X_train'])
+            self.norm_std = np.std(xy_dict['X_train'])
+        if 'X_train' in xy_dict.keys():
+            for dataset in ('X_train', 'X_dev', 'X_test'):
+                xy_dict[dataset] = (xy_dict[dataset] - self.norm_mean) / self.norm_std
+        else:
+            xy_dict['X'] = (xy_dict['X'] - self.norm_mean) / self.norm_std
         return xy_dict
 
     def pytorch_prep(self, xy_dict, batch_size, device):
         tensors = {
             k: torch.from_numpy(v).to(torch.float).to(device) for k, v in xy_dict.items()
             }
-        for y in ('Y_train', 'Y_dev', 'Y_test'):
-            tensors[y] = tensors[y].to(torch.long)
+        if 'X_train' in xy_dict.keys():
+            for y in ('Y_train', 'Y_dev', 'Y_test'):
+                tensors[y] = tensors[y].to(torch.long)
 
-        train_dl = DataLoader(
-            TensorDataset(tensors['X_train'], tensors['Y_train']),
-            batch_size = batch_size
-            )
-        dev_dl = DataLoader(TensorDataset(tensors['X_dev'], tensors['Y_dev']))
-        test_dl = DataLoader(TensorDataset(tensors['X_test'], tensors['Y_test']))
+            train_dl = DataLoader(
+                TensorDataset(tensors['X_train'], tensors['Y_train']),
+                batch_size = batch_size
+                )
+            dev_dl = DataLoader(TensorDataset(tensors['X_dev'], tensors['Y_dev']))
+            test_dl = DataLoader(TensorDataset(tensors['X_test'], tensors['Y_test']))
 
-        return {'train': train_dl, 'dev': dev_dl, 'test': test_dl}
+            return {'train': train_dl, 'dev': dev_dl, 'test': test_dl}
+        else:
+            tensors['Y'] = tensors['Y'].to(torch.long)
+            dl = DataLoader(
+                TensorDataset(tensors['X'], tensors['Y']),
+                batch_size = batch_size
+                )
+            return dl
 
     def _drop_missing(self):
         self.data = self.data.loc[~self.data.mlb_id.isnull()]
@@ -240,7 +245,7 @@ class Data:
         self.data = self.data.drop(self.data[self.data['events'].eq('single')].sample(reduced_singles).index)
 
     def _add_la_xy(self):
-        self.data['la_xy'] = np.tan((self.data['hc_x'] - 128.) / (208. - self.data['hc_y'])) * 180. / np.pi * 0.75
+        self.data.loc[:, 'la_xy'] = np.tan((self.data.loc[:, 'hc_x'] - 128.) / (208. - self.data.loc[:, 'hc_y'])) * 180. / np.pi * 0.75
         self.data = self.data.rename(columns={'launch_angle': 'la_z'})
 
     def _factorize_strings(self, cols: List[str]):

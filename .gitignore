@@ -1,6 +1,7 @@
 runs/
 saved_models/
 checkpoints/
+2023_ranking.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
