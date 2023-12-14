@@ -25,7 +25,7 @@ Baseball has always been a cutting edge sport in regards to analytics. More and 
 
 # Data
 ## Dataset for Versions 1.X - 4.X
-The dataset is every player who was active in 2020's at bats from 2015 - 2020. This totals 778,449 rows of data, almost all of which are very high quality. The data was acquired via another program I've written, that scrapes baseball statistics off of various sites ([mlb.com](https://www.mlb.com), [fangraphs](https://www.fangraphs.com), [baseballsavant](https://www.baseballsavant.mlb.com), etc.) and saves them for later use. That python program is called [baseball-spider](). These particular statistics were scraped from [baseballsavant](https://www.baseballsavant.mlb.com).
+The dataset is every player who was active in 2020's at bats from 2015 - 2020. This totals 778,449 rows of data, almost all of which are very high quality. The data was acquired via another program I've written, that scrapes baseball statistics off of various sites ([mlb.com](https://www.mlb.com), [fangraphs](https://www.fangraphs.com), [baseballsavant](https://www.baseballsavant.mlb.com), etc.) and saves them for later use. That python program is called [baseball-spider](https://github.com/bjhammack/baseball-spider). These particular statistics were scraped from [baseballsavant](https://www.baseballsavant.mlb.com).
 
 ### Features (v4.0+)
 | 1 | 2 | 3 | 4 | 5 |
